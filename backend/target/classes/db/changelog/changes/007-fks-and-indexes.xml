@@ -14,7 +14,7 @@ Create foreign keys
         <addForeignKeyConstraint
             constraintName="fk_trades_instrument"
             baseTableName="trades"
-            baseColumnName="instrument_id"
+            baseColumnNames="instrument_id"
             referencedTableName="instruments"
             referencedColumnNames="id"
         />
@@ -22,7 +22,7 @@ Create foreign keys
         <addForeignKeyConstraint
             constraintName="fk_trades_counterparty"
             baseTableName="trades"
-            baseColumnName="counterparty_id"
+            baseColumnNames="counterparty_id"
             referencedTableName="counterparties"
             referencedColumnNames="id"
         />

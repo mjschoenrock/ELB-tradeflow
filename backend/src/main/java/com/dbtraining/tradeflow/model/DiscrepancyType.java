@@ -33,7 +33,7 @@ public enum DiscrepancyType {
             case DATE_MISMATCH -> "Date does not match counterparty record";
             case MISSING_TRADE -> "Trade only exists for one party";
             default -> "Unknown error";
-        }
+        };
 
         return describe;
     }

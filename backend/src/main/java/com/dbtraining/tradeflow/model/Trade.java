@@ -3,6 +3,11 @@ package com.dbtraining.tradeflow.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
+
+import org.springframework.cglib.core.Local;
+
+import com.dbtraining.tradeflow.model.ReconResult.Builder;
 
 /**
  * ============================================================================
@@ -38,20 +43,41 @@ public class Trade {
 
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017): define private final fields:
-    private final String tradeRef;
-    private final Long instrumentId;          // or Instrument instrument (Day 5)
-    private final Long counterpartyId;        // or Counterparty (Day 5)
-    private final BigDecimal quantity;
-    private final BigDecimal price;
-    private final LocalDate tradeDate;
-    private final TradeStatus status;
-    private final Instant createdAt;
+    // not final as JPA needs to be able to modify them
+    private String tradeRef;
+    private Long instrumentId;          // or Instrument instrument (Day 5)
+    private Long counterpartyId;        // or Counterparty (Day 5)
+    private BigDecimal quantity;
+    private BigDecimal price;
+    private LocalDate tradeDate;
+    private TradeStatus status;
+    private Instant createdAt;
  
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017 / TICKET-I056): private constructor used by Builder
     //   + protected no-arg constructor for JPA (Day 5).
     // ------------------------------------------------------------------------
-    Trade() {}
+    private Trade(Builder builder) {
+        this.tradeRef = builder.tradeRef;
+        this.instrumentId = builder.instrumentId;
+        this.counterpartyId = builder.counterpartyId;
+        this.quantity = builder.quantity;
+        this.price = builder.price;
+        this.tradeDate = builder.tradeDate;
+        this.createdAt = builder.createdAt;
+
+        if (builder.status != null){
+            this.status = builder.status;
+        } else{
+            this.status = TradeStatus.PENDING;
+        }
+
+        if (builder.createdAt != null){
+            this.createdAt = builder.createdAt;
+        } else{
+            this.createdAt = Instant.now();
+        }
+    }
 
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017): public getters (no setters).
@@ -110,4 +136,78 @@ public class Trade {
     //       }
     //   }
     // ========================================================================
+
+    public static Builder builder(){
+        return new Builder();
+    }
+
+    public static final class Builder{
+        private String tradeRef;
+        private Long instrumentId;
+        private Long counterpartyId;
+        private BigDecimal quantity;
+        private BigDecimal price;
+        private LocalDate tradeDate;
+        private TradeStatus status;
+        private Instant createdAt;
+
+        public Builder tradeRef(String tradeRef){
+            this.tradeRef = tradeRef;
+            return this;
+        }
+        public Builder intstrumentId(Long iid){
+            this.instrumentId = iid;
+            return this;
+        }
+        public Builder counterpartyId(Long cid){
+            this.counterpartyId = cid;
+            return this;
+        }
+        public Builder quantity(BigDecimal quantity){
+            this.quantity = quantity;
+            return this;
+        }
+        public Builder price(BigDecimal price){
+            this.price = price;
+            return this;
+        }
+        public Builder tradeDate(LocalDate tradeDate){
+            this.tradeDate = tradeDate;
+            return this;
+        }
+        public Builder status(TradeStatus status){
+            this.status = status;
+            return this;
+        }
+        public Builder createdAt(Instant createdAt){
+            this.createdAt = createdAt;
+            return this;
+        }
+
+
+        public Trade build(){
+            Objects.requireNonNull(tradeRef, "tradeRef input needed");
+            Objects.requireNonNull(instrumentId, "instrumentId needed");
+            Objects.requireNonNull(counterpartyId, "counterPartyId needed");
+            Objects.requireNonNull(quantity, "quantity needed");
+            Objects.requireNonNull(price, "price needed");
+            Objects.requireNonNull(tradeDate, "tradeDate needed");
+
+            if (quantity.signum() <= 0) throw new IllegalStateException("quantity > 0 needed");
+
+            if (price.signum() < 0 ) throw new IllegalStateException("price > 0 needed");
+            return new Trade(this);
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
 }

@@ -1,7 +1,5 @@
 package com.dbtraining.tradeflow;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * ============================================================================
@@ -24,12 +22,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *  onward, this becomes the Spring Boot entry-point as below.
  * ============================================================================
  */
-@SpringBootApplication
 public class TradeflowApplication {
 
     public static void main(String[] args) {
         printBanner();
-        SpringApplication.run(TradeflowApplication.class, args);
+        
     }
 
     private static void printBanner() {

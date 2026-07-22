@@ -27,6 +27,14 @@ public enum DiscrepancyType {
      */
     public String describe() {
         // HINT: switch expression on `this`.
-        throw new UnsupportedOperationException("TICKET-I021: implement DiscrepancyType.describe()");
+        String describe = switch(this) {
+            case PRICE_MISMATCH -> "Price does not match counterparty record";
+            case QUANTITY_MISMATCH -> "Quantity does not match counterparty record";
+            case DATE_MISMATCH -> "Date does not match counterparty record";
+            case MISSING_TRADE -> "Trade only exists for one party";
+            default -> "Unknown error";
+        }
+
+        return describe;
     }
 }

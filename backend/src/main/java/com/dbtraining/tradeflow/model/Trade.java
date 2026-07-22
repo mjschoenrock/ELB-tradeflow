@@ -99,6 +99,24 @@ public class Trade {
     // TODO(TICKET-I025): equals() + hashCode() on tradeRef.
     //   HINT: IntelliJ generate → keep only `tradeRef`.
     // ------------------------------------------------------------------------
+    
+    @Override
+    public boolean equals(Object object){
+        if (this == object){
+            return true;
+        }
+        if (!(object instanceof Trade otherTrade)){
+            return false;
+        }
+
+        return Objects.equals(tradeRef, otherTrade.tradeRef);
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(this.tradeRef);
+    }
+
 
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017): toString() formatted for the console list (TICKET-I026)
@@ -155,7 +173,7 @@ public class Trade {
             this.tradeRef = tradeRef;
             return this;
         }
-        public Builder intstrumentId(Long iid){
+        public Builder instrumentId(Long iid){
             this.instrumentId = iid;
             return this;
         }

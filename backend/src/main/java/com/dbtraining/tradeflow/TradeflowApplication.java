@@ -1,5 +1,9 @@
 package com.dbtraining.tradeflow;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import com.dbtraining.tradeflow.model.Trade;
 
 /**
  * ============================================================================
@@ -26,6 +30,24 @@ public class TradeflowApplication {
 
     public static void main(String[] args) {
         printBanner();
+
+        //testing I025
+        Trade a = Trade.builder()
+                .tradeRef("TRD-1")
+                .instrumentId(1L).counterpartyId(1L)
+                .quantity(new BigDecimal("100")).price(new BigDecimal("50.00"))
+                .tradeDate(LocalDate.now())
+                .build();
+        Trade b = Trade.builder()
+                .tradeRef("TRD-1").instrumentId(1L).counterpartyId(1L)
+                .quantity(new BigDecimal("200")).price(new BigDecimal("99.99"))  // ... different qty/price
+                .tradeDate(LocalDate.now())
+                .build();
+        if (!a.equals(b))                    throw new AssertionError("equals broken");
+        if (a.hashCode() != b.hashCode())    throw new AssertionError("hashCode broken");
+
+        System.out.println("SUCCESS YIPPEE");
+
         
     }
 

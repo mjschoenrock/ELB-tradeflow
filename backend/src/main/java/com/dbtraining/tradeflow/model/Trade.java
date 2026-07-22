@@ -38,25 +38,37 @@ public class Trade {
 
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017): define private final fields:
-    //   private final String tradeRef;
-    //   private final Long instrumentId;          // or Instrument instrument (Day 5)
-    //   private final Long counterpartyId;        // or Counterparty (Day 5)
-    //   private final BigDecimal quantity;
-    //   private final BigDecimal price;
-    //   private final LocalDate tradeDate;
-    //   private final TradeStatus status;
-    //   private final Instant createdAt;
-    // ------------------------------------------------------------------------
-
+    private final String tradeRef;
+    private final Long instrumentId;          // or Instrument instrument (Day 5)
+    private final Long counterpartyId;        // or Counterparty (Day 5)
+    private final BigDecimal quantity;
+    private final BigDecimal price;
+    private final LocalDate tradeDate;
+    private final TradeStatus status;
+    private final Instant createdAt;
+ 
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017 / TICKET-I056): private constructor used by Builder
     //   + protected no-arg constructor for JPA (Day 5).
     // ------------------------------------------------------------------------
+    Trade() {}
 
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017): public getters (no setters).
     // ------------------------------------------------------------------------
+    public String getTradeRef()         { return tradeRef; }
+    public Long getInstrumentId()       { return instrumentId; }
+    public Long getCounterpartyId()     { return counterpartyId; }
+    public BigDecimal getQuantity()     { return quantity; }
+    public BigDecimal getPrice()        { return price; }
+    public LocalDate getTradeDate()     { return tradeDate; }
+    public TradeStatus getStatus()      { return status; }
+    public Instant getCreatedAt()       { return createdAt; }
 
+    /** Notional = quantity * price. Computed; not stored. */
+    public BigDecimal getNotional() {
+        return quantity == null || price == null ? null : quantity.multiply(price);
+    }
     // ------------------------------------------------------------------------
     // TODO(TICKET-I025): equals() + hashCode() on tradeRef.
     //   HINT: IntelliJ generate → keep only `tradeRef`.
@@ -66,7 +78,14 @@ public class Trade {
     // TODO(TICKET-I017): toString() formatted for the console list (TICKET-I026)
     //   e.g. "Trade[TRD-1 | SAP.DE | 1000 @ 152.40 EUR | 2026-03-12 | MATCHED]"
     // ------------------------------------------------------------------------
-
+    @Override
+    public String toString() {
+        return "Trade[" + tradeRef
+            + " | instrument=" + instrumentId
+            + " | " + quantity + " @ " + price
+            + " | " + tradeDate
+            + " | " + status + "]";
+}
     // ========================================================================
     // TODO(TICKET-I018): fluent Builder.
     //

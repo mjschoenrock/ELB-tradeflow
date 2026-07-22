@@ -16,6 +16,9 @@ package com.dbtraining.tradeflow.model;
  *    - Day-6 Spring Security / DTOs (you'll surface this via the REST API)
  * ============================================================================
  */
+
+// @author max
+
 public enum TradeStatus {
 
     PENDING,

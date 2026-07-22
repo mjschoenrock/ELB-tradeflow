@@ -25,4 +25,13 @@ package com.dbtraining.tradeflow.model;
  */
 public class ReconResult {
     // TODO(TICKET-I024): fields, private ctor, Builder, getters.
+
+    private int id;
+    private Long tradeId;
+    private String status;
+    private DiscrepancyType discrepancyType;
+    private Instant resolvedAt;
+    private Instant createdAt;
+
+
 }

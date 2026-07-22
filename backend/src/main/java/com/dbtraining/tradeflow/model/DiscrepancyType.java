@@ -10,6 +10,9 @@ package com.dbtraining.tradeflow.model;
  *          discrepancy type to flag based on field-by-field comparison.
  * ============================================================================
  */
+ 
+// @author max
+
 public enum DiscrepancyType {
 
     PRICE_MISMATCH,

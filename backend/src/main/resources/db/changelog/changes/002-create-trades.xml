@@ -41,7 +41,7 @@ Create trades table
         <sql>
             ALTER TABLE trades ADD CONSTRAINT trades_pos_quantity CHECK (quantity > 0);
             ALTER TABLE trades ADD CONSTRAINT trades_pos_price CHECK (price > 0);
-            ALTER TABLE trades ADD CONSTRAINT trades_status_valid CHECK (status IN ('PENDING', 'SETTLED', 'CANCELLED', 'FAILED'));
+            ALTER TABLE trades ADD CONSTRAINT trades_status_valid CHECK (status IN ('PENDING', 'MATCHED', 'UNMATCHED', 'DISPUTED', 'CANCELLED'));
         </sql>
         
         <createIndex indexName="idx_trades_date" tableName="trades">

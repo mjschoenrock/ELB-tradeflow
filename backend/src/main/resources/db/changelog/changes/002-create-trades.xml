@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+002-create-trades.xml
+Create trades table
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="001-init" author="tradeflow-team">
+      <sql>
+        CREATE TABLE trades (
+          id SERIAL PRIMARY KEY,
+          trade_ref varchar(100) UNIQUE NOT NULL,
+          instrument_id BIGINT NOT NULL,
+          counterparty_id BIGINT NOT NULL,
+          quantity NUMERIC(18,4) NOT NULL,
+          price NUMERIC(18,4) NOT NULL,
+          trade_date DATE NOT NULL,
+          status VARCHAR(20) NOT NULL default 'PENDING',
+        )
+      </sql>
+        <tagDatabase tag="v0.0.0-init"/>
+    </changeSet>
+
+</databaseChangeLog>
+     

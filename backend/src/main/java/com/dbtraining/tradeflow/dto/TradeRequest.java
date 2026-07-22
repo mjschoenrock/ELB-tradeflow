@@ -50,5 +50,6 @@ public record TradeRequest(
 
         // TODO(TICKET-I069): add `status` if you want clients to pass it,
         //                    otherwise the service defaults it to PENDING.
+        // TEST
 ) {
 }

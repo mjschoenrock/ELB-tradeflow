@@ -17,6 +17,34 @@ insert table data
             <column name="currency" value="EUR"/>
         </insert>
 
+        <insert tableName="instruments">
+            <column name="symbol" value="RACE.NYSE"/>
+            <column name="name" value="Ferrari NV"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="currency" value="USD"/>
+        </insert>
+
+        <insert tableName="instruments">
+            <column name="symbol" value="AAPL.NASDAQ"/>
+            <column name="name" value="Apple Inc."/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="currency" value="USD"/>
+        </insert>
+
+        <insert tableName="instruments">
+            <column name="symbol" value="SAP2.DE"/>
+            <column name="name" value="SAP 2 SE"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="currency" value="EUR"/>
+        </insert>
+
+        <insert tableName="instruments">
+            <column name="symbol" value="NVDA.NASDAQ"/>
+            <column name="name" value="NVIDIA Corp"/>
+            <column name="asset_class" value="EQUITY"/>
+            <column name="currency" value="USD"/>
+        </insert>
+
         <rollback>
             <delete tableName="instruments"/>
         </rollback>

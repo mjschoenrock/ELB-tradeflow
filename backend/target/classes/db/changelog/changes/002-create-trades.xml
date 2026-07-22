@@ -44,12 +44,17 @@ Create trades table
             ALTER TABLE trades ADD CONSTRAINT chk_trades_status_valid CHECK (status IN ('PENDING', 'SETTLED', 'CANCELLED', 'FAILED'));
         </sql>
         
-        <createIndex indexName="idx_trades_trade_date" tableName="trades"/>
-        <column name="trade_date"/>
+        <createIndex indexName="idx_trades_trade_date" tableName="trades">
+            <column name="trade_date"/>
+        </createIndex>
+
+        <createIndex indexName="idx_trades_status" tableName="trades">
+            <column name = "status"/>
+        </createIndex>
 
         <rollback>
             <dropTable tableName="trades"/>
-        </rollback
+        </rollback>
 
     </changeSet>
 

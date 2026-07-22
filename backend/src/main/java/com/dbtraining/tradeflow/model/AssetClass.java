@@ -10,6 +10,9 @@ package com.dbtraining.tradeflow.model;
  * OBSERVE: Used in @Enumerated(EnumType.STRING) on the Instrument entity.
  * ============================================================================
  */
+
+// @author max
+
 public enum AssetClass {
 
     EQUITY,
@@ -26,6 +29,9 @@ public enum AssetClass {
     public boolean isCash() {
         // HINT: a switch expression keeps this compact and readable:
         //   return switch (this) { case EQUITY, FIXED_INCOME, FX -> true; default -> false; };
-        throw new UnsupportedOperationException("TICKET-I020: implement AssetClass.isCash()");
+        return switch (this) {
+            case EQUITY, FIXED_INCOME, FX -> true;
+            default -> false;
+        };
     }
 }

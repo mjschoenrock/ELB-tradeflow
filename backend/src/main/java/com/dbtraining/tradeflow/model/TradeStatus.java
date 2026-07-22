@@ -31,6 +31,6 @@ public enum TradeStatus {
      */
     public boolean isTerminal() {
         // HINT: return this == MATCHED || this == CANCELLED;
-        throw new UnsupportedOperationException("TICKET-I019: implement TradeStatus.isTerminal()");
+        return this == MATCHED || this == CANCELLED;
     }
 }

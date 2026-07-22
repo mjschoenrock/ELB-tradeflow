@@ -1,0 +1,12 @@
+<changeSet id="008-seed-instruments" author="max">
+    <insert tableName="instruments">
+        <column name="symbol" value="SAP.DE"/>
+        <column name="name" value="SAP SE"/>
+        <column name="asset_class" value="EQUITY"/>
+        <column name="currency" value="EUR"/>
+    </insert>
+
+    <rollback
+        <delete tableName="instruments"/>
+    </rollback>
+</changeSet

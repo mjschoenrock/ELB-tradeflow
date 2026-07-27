@@ -14,11 +14,11 @@ package com.dbtraining.tradeflow.exception;
  */
 public class InsufficientDataException extends RuntimeException {
 
-    public InsufficientDataException(String message) {
-        super(message);
+    public InsufficientDataException(String Message) {
+        super(Message);
     }
 
-    public InsufficientDataException(String message, Throwable cause) {
-        super(message, cause);
+    public InsufficientDataException(String Message, Throwable Cause) {
+        super(Message, Cause);
     }
 }

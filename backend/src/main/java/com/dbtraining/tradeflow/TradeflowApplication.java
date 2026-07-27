@@ -2,6 +2,7 @@ package com.dbtraining.tradeflow;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import com.dbtraining.tradeflow.model.Trade;
 
@@ -26,6 +27,8 @@ import com.dbtraining.tradeflow.model.Trade;
  *  onward, this becomes the Spring Boot entry-point as below.
  * ============================================================================
  */
+
+
 public class TradeflowApplication {
 
     public static void main(String[] args) {
@@ -48,6 +51,8 @@ public class TradeflowApplication {
 
         System.out.println("SUCCESS YIPPEE");
 
+        printDay2Demo();
+
         
     }
 
@@ -65,5 +70,25 @@ public class TradeflowApplication {
         System.out.println("  Deutsche Bank — TDI 2026 Graduate Technical Training");
         System.out.println("  Intermediate Track — Case Study: Trade Reconciliation");
         System.out.println();
+    }
+
+
+
+    private static void printDay2Demo(){
+
+        List<Trade> trades = List.of(Trade.builder().tradeRef("TRD-1").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("100")).price(new BigDecimal("50.00")).tradeDate(LocalDate.now()).build(),
+                                    Trade.builder().tradeRef("TRD-2").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("200")).price(new BigDecimal("99.99")).tradeDate(LocalDate.now()).build(),
+                                    Trade.builder().tradeRef("TRD-3").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("110")).price(new BigDecimal("51.00")).tradeDate(LocalDate.now()).build(),
+                                    Trade.builder().tradeRef("TRD-4").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("700")).price(new BigDecimal("57.00")).tradeDate(LocalDate.now()).build(),
+                                    Trade.builder().tradeRef("TRD-5").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("101")).price(new BigDecimal("5.00")).tradeDate(LocalDate.now()).build());
+        
+        System.out.println();
+        System.out.printf("%-15s | %-13s | %-5s | %-10s | %-10s | %-12s | %-10s%n",
+                "TRADE_REF", "INSTRUMENT_ID", "CP_ID", "QTY", "PRICE", "DATE", "STATUS");
+        trades.forEach(t -> System.out.printf("%-15s | %-13s | %-5s | %10s | %10s | %-12s | %-10s%n",
+                    t.getTradeRef(), t.getInstrumentId(), t.getCounterpartyId(), t.getQuantity(), t.getPrice(), t.getTradeDate(), t.getStatus()));
+        System.out.println("");
+        
+
     }
 }

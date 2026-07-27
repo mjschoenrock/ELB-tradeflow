@@ -27,10 +27,24 @@ public abstract class BaseTrade {
     // TODO(TICKET-I028): protected final fields for the shared values
     //   tradeRef, instrumentId, counterpartyId, quantity, price, tradeDate,
     //   status, createdAt.
+    protected final String tradeRef;
+    protected final Long instrumentId;
+    protected final Long counterpartyId;
+    protected final BigDecimal quantity;
+    protected final BigDecimal price;
+    protected final LocalDate tradeDate;
+    protected final TradeStatus status;
+    protected final Instant createdAt;
+
 
     // TODO(TICKET-I028): protected constructor (subclasses call super(...)).
+    protected BaseTrade() {
+
+    }
 
     // TODO(TICKET-I028): public getters.
+
+    public String getTradeRef
 
     /**
      * Each asset class returns its own description for logs/UI.

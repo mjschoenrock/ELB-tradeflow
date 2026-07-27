@@ -27,6 +27,8 @@ public abstract class BaseTrade {
     // TODO(TICKET-I028): protected final fields for the shared values
     //   tradeRef, instrumentId, counterpartyId, quantity, price, tradeDate,
     //   status, createdAt.
+
+    // TODO(TICKET-I028): protected constructor (subclasses call super(...)).
     protected final String tradeRef;
     protected final Long instrumentId;
     protected final Long counterpartyId;
@@ -36,16 +38,17 @@ public abstract class BaseTrade {
     protected final TradeStatus status;
     protected final Instant createdAt;
 
-
-    // TODO(TICKET-I028): protected constructor (subclasses call super(...)).
-    protected BaseTrade() {
-
-    }
-
     // TODO(TICKET-I028): public getters.
-
-    public String getTradeRef
-
+    
+    public String getTradeRef()       { return tradeRef; }
+    public Long getInstrumentId()     { return instrumentId; }
+    public Long getCounterpartyId()   { return counterpartyId; }
+    public BigDecimal getQuantity()   { return quantity; }
+    public BigDecimal getPrice()      { return price; }
+    public LocalDate getTradeDate()   { return tradeDate; }
+    public TradeStatus getStatus()    { return status; }
+    public Instant getCreatedAt()     { return createdAt; }
+    
     /**
      * Each asset class returns its own description for logs/UI.
      * EquityTrade → "Equity on XETRA"
@@ -53,4 +56,6 @@ public abstract class BaseTrade {
      * BondTrade   → "Bond coupon 4.50% mat 2030-06-15"
      */
     public abstract String assetClassDescription();
+
+    
 }

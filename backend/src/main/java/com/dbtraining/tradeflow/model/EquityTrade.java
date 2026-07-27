@@ -16,7 +16,12 @@ package com.dbtraining.tradeflow.model;
  *    assetClassDescription() returns "Equity on " + exchange.
  * ============================================================================
  */
-public class EquityTrade /* extends BaseTrade */ {
+public class EquityTrade extends BaseTrade {
     // TODO(TICKET-I029): extend BaseTrade, add exchange + lotSize, override
     //                    assetClassDescription().
+
+    private String exchange;
+    private int lotSize;
+
+    
 }

@@ -29,7 +29,14 @@ public abstract class BaseTrade {
     //   status, createdAt.
 
     // TODO(TICKET-I028): protected constructor (subclasses call super(...)).
-
+    protected final String tradeRef;
+    protected final Long instrumentId;
+    protected final Long counterpartyId;
+    protected final BigDecimal quantity;
+    protected final BigDecimal price;
+    protected final LocalDate tradeDate;
+    protected final TradeStatus status;
+    protected final Instant createdAt;
     // TODO(TICKET-I028): public getters.
 
     /**

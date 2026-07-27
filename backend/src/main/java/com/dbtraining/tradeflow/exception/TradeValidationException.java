@@ -21,7 +21,7 @@ package com.dbtraining.tradeflow.exception;
  */
 public class TradeValidationException extends Exception {
 
-    public enum Code {
+    public enum Code{
         MISSING_FIELD,
         INVALID_VALUE,
         REFERENCE_NOT_FOUND
@@ -29,7 +29,14 @@ public class TradeValidationException extends Exception {
 
     // TODO(TICKET-I032): private final Code code; getCode(); ctor(Code, String).
 
-    public TradeValidationException(String message) {
+    private final Code code;
+
+    public TradeValidationException(Code code, String message) {
         super(message);
+        this.code = code;
+    }
+
+    public Code getCode(){
+        return code;
     }
 }

@@ -12,31 +12,43 @@ package com.dbtraining.tradeflow.exception;
  *           therefore unchecked.)
  * OBSERVE: TradeController catches this on Day 6 and returns 400 Bad Request.
  * ============================================================================
- *  TODO(TICKET-I032):
- *    - extend Exception (NOT RuntimeException)
- *    - inner enum Code { MISSING_FIELD, INVALID_VALUE, REFERENCE_NOT_FOUND }
- *    - constructor (Code, String message)
- *    - getCode() accessor
- * ============================================================================
  */
 public class TradeValidationException extends Exception {
 
-    public enum Code{
+    public enum Code {
         MISSING_FIELD,
         INVALID_VALUE,
         REFERENCE_NOT_FOUND
     }
 
-    // TODO(TICKET-I032): private final Code code; getCode(); ctor(Code, String).
-
     private final Code code;
 
+    /**
+     * Constructs a validation exception with a specific error code and detail message.
+    */
     public TradeValidationException(Code code, String message) {
-        super(message);
+        this(code, message, null);
+    }
+
+    /**
+     * Constructs a validation exception with a specific error code, detail message, and cause.
+     */
+    public TradeValidationException(Code code, String message, Throwable cause) {
+        super(message, cause);
         this.code = code;
     }
 
-    public Code getCode(){
-        return code;
+    /**
+     * Convenience constructor defaulting the error code to {@link Code#INVALID_VALUE}.
+     */
+    public TradeValidationException(String message) {
+        this(Code.INVALID_VALUE, message);
+    }
+
+    /**
+     * Retrieves the structured validation error code.
+     */
+    public Code getCode() {
+        return this.code;
     }
 }

@@ -26,6 +26,13 @@ class ReconciliationServiceTest {
     @Test
     void matchTrades_allMatched_returnsEmptyDiscrepancies() {
         fail("TICKET-I048: implement test");
+        List<BaseTrade> internal = List.of(equity("TST-001"), equity("TST-002"), equity("TST-003"));
+        List<BaseTrade> external = List.of(equity("TST-001"), equity("TST-002"), equity("TST-003"));
+
+        ReconReport report = service.matchTrades(internal, external);
+
+        assertThat(report.matched()).hasSize(3);
+
     }
 
     // TODO(TICKET-I049): test matchTrades_priceMismatch_flagsDiscrepancy.

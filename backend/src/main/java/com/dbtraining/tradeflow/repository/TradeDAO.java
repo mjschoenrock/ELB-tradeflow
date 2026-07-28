@@ -1,9 +1,18 @@
 package com.dbtraining.tradeflow.repository;
 
+import com.dbtraining.tradeflow.config.DatabaseConfig;
 import com.dbtraining.tradeflow.model.Trade;
 import com.dbtraining.tradeflow.model.TradeStatus;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -26,25 +35,100 @@ import java.util.Optional;
  */
 public class TradeDAO {
 
-    // TODO(TICKET-I045): inject DataSource (HikariCP from DatabaseConfig).
+    private static final String SELECT_COLUMNS =
+            "id, trade_ref, instrument_id, counterparty_id, quantity, price, trade_date, status, created_at";
+
+    private final DataSource dataSource;
+
+    public TradeDAO() {
+        this(DatabaseConfig.dataSource());
+    }
+
+    public TradeDAO(DataSource dataSource) {
+        this.dataSource = Objects.requireNonNull(dataSource, "dataSource must not be null");
+    }
 
     public long insert(Trade trade) {
-        // TODO(TICKET-I045): INSERT ... RETURNING id; return the generated id.
-        throw new UnsupportedOperationException("TICKET-I045");
+        String sql = "INSERT INTO trades " +
+                "(trade_ref, instrument_id, counterparty_id, quantity, price, trade_date, status) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, trade.getTradeRef());
+            statement.setLong(2, trade.getInstrumentId());
+            statement.setLong(3, trade.getCounterpartyId());
+            statement.setBigDecimal(4, trade.getQuantity());
+            statement.setBigDecimal(5, trade.getPrice());
+            statement.setDate(6, java.sql.Date.valueOf(trade.getTradeDate()));
+            statement.setString(7, trade.getStatus().name());
+            statement.executeUpdate();
+
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getLong(1);
+                }
+                throw new IllegalStateException("insert returned no generated key");
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("TradeDAO.insert failed for tradeRef=" + trade.getTradeRef(), exception);
+        }
     }
 
     public Optional<Trade> findByRef(String tradeRef) {
-        // TODO(TICKET-I045): SELECT * FROM trades WHERE trade_ref = ? LIMIT 1.
-        throw new UnsupportedOperationException("TICKET-I045");
+        String sql = "SELECT " + SELECT_COLUMNS + " FROM trades WHERE trade_ref = ? LIMIT 1";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, tradeRef);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(mapRow(resultSet));
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("TradeDAO.findByRef failed for tradeRef=" + tradeRef, exception);
+        }
     }
 
     public List<Trade> findAll() {
-        // TODO(TICKET-I045): SELECT * FROM trades.
-        throw new UnsupportedOperationException("TICKET-I045");
+        String sql = "SELECT " + SELECT_COLUMNS + " FROM trades ORDER BY trade_date DESC, id DESC";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            List<Trade> trades = new ArrayList<>();
+            while (resultSet.next()) {
+                trades.add(mapRow(resultSet));
+            }
+            return trades;
+        } catch (SQLException exception) {
+            throw new IllegalStateException("TradeDAO.findAll failed", exception);
+        }
     }
 
-    public void updateStatus(String tradeRef, TradeStatus newStatus) {
-        // TODO(TICKET-I045): UPDATE trades SET status=? WHERE trade_ref=?.
-        throw new UnsupportedOperationException("TICKET-I045");
+    public int updateStatus(String tradeRef, TradeStatus newStatus) {
+        String sql = "UPDATE trades SET status = ? WHERE trade_ref = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, newStatus.name());
+            statement.setString(2, tradeRef);
+            return statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new IllegalStateException("TradeDAO.updateStatus failed for tradeRef=" + tradeRef, exception);
+        }
+    }
+
+    private static Trade mapRow(ResultSet resultSet) throws SQLException {
+        return Trade.builder()
+                .tradeRef(resultSet.getString("trade_ref"))
+                .instrumentId(resultSet.getLong("instrument_id"))
+                .counterpartyId(resultSet.getLong("counterparty_id"))
+                .quantity(resultSet.getBigDecimal("quantity"))
+                .price(resultSet.getBigDecimal("price"))
+                .tradeDate(resultSet.getDate("trade_date").toLocalDate())
+                .status(TradeStatus.valueOf(resultSet.getString("status")))
+                .createdAt(resultSet.getTimestamp("created_at") == null
+                        ? null
+                        : resultSet.getTimestamp("created_at").toInstant())
+                .build();
     }
 }

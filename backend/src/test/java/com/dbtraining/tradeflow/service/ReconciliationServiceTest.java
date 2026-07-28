@@ -3,7 +3,15 @@ package com.dbtraining.tradeflow.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.dbtraining.tradeflow.model.BaseTrade;
+import com.dbtraining.tradeflow.model.EquityTrade;
+import com.dbtraining.tradeflow.model.TradeStatus;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -22,6 +30,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(MockitoExtension.class)
 class ReconciliationServiceTest {
 
+    private static BaseTrade equity(String tradeRef) {
+        return EquityTrade.builder()
+                .tradeRef(tradeRef).instrumentId(1L).counterpartyId(1L)
+                .quantity(new BigDecimal("100")).price(new BigDecimal("245.50"))
+                .tradeDate(LocalDate.of(2026, 3, 1))
+                .status(TradeStatus.MATCHED)
+                .exchange("XETRA").lotSize(100)
+                .build();
+    }
+
     // TODO(TICKET-I048): test matchTrades_allMatched_returnsEmptyDiscrepancies.
     @Test
     void matchTrades_allMatched_returnsEmptyDiscrepancies() {
@@ -31,7 +49,9 @@ class ReconciliationServiceTest {
 
         ReconReport report = service.matchTrades(internal, external);
 
-        assertThat(report.matched()).hasSize(3);
+        assertThat(report.matched()).hasSize(3); 
+
+
 
     }
 
@@ -44,7 +64,7 @@ class ReconciliationServiceTest {
     // TODO(TICKET-I050): test matchTrades_missingExternal_flagsMissingTrade.
     @Test
     void matchTrades_missingExternal_flagsMissingTrade() {
-        fail("TICKET-I050: implement test");
+        List<BaseTrade> internal = List.of(equity)
     }
 
     // TODO(TICKET-I051): test with @Mock TradeDAO + verify(...).findAll() called.

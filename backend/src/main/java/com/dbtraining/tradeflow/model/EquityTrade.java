@@ -53,6 +53,10 @@ public class EquityTrade extends BaseTrade {
         return this.lotSize;
     }
 
+    public static Builder builder(){
+        return new Builder();
+    }
+
     public static final class Builder {
         private String tradeRef;
         private Long instrumentId;
@@ -65,11 +69,11 @@ public class EquityTrade extends BaseTrade {
         private String exchange;
         private int lotSize;
 
-        public Builder getTradeRef(String tradeRef){
+        public Builder tradeRef(String tradeRef){
             this.tradeRef = tradeRef;
             return this;
         }
-        public Builder getInstrumentId(Long instrumentId){
+        public Builder instrumentId(Long instrumentId){
             this.instrumentId = instrumentId;
             return this;
         }
@@ -102,6 +106,10 @@ public class EquityTrade extends BaseTrade {
         }
         public Builder lotSize(int lotSize){ this.lotSize = lotSize;        
             return this; 
+        }
+
+        public EquityTrade build(){
+            return new EquityTrade(this);
         }
 
     }

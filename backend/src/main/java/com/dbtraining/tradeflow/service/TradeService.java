@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 /**
  * ============================================================================
@@ -76,7 +77,12 @@ public class TradeService {
      *   Top N trades by notional value (quantity * price) descending.
      */
     public List<BaseTrade> topNByValue(int n) {
-        throw new UnsupportedOperationException("TICKET-I043");
+        
+        if(!(n > 0)) {
+            throw new IllegalArgumentException("Error: n was less than zero");
+        }
+
+        return trades.values.stream().sorted(Comparator.comparing(BaseTrade::getNotional).reversed()).limit(n).toList();
     }
 
     /**

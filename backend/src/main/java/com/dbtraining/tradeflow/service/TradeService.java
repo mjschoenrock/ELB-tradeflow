@@ -51,8 +51,10 @@ public class TradeService {
     }
 
     public void addTrade(BaseTrade trade) {
-        // TODO(TICKET-I041): put in the map keyed by tradeRef. Reject duplicates.
-        throw new UnsupportedOperationException("TICKET-I041");
+        if (tradesByRef.containsKey(trade.getTradeRef())) {
+            throw new IllegalStateException("Duplicate tradeRef: " + trade.getTradeRef());
+        }
+        tradesByRef.put(trade.getTradeRef(), trade);
     }
 
     /**

@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.dbtraining.tradeflow.model.BaseTrade;
+import com.dbtraining.tradeflow.model.DiscrepancyType;
 import com.dbtraining.tradeflow.model.EquityTrade;
 import com.dbtraining.tradeflow.model.TradeStatus;
+import com.dbtraining.tradeflow.dto.ReconSummary;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * ============================================================================
  * WHAT:    JUnit + Mockito tests for the recon engine.
  * HOW:     @ExtendWith(MockitoExtension.class). Mock the DAOs, build sample
- *          trade lists, assert on the returned ReconReport.
+ *          trade lists, assert on the returned ReconSummary.
  * WHY:     Day 4 sets a 70% coverage target. ReconciliationService is the
  *          critical path — it gets the most attention.
  * OBSERVE: `mvn test` runs these in a few seconds; JaCoCo report shows the
@@ -47,11 +49,9 @@ class ReconciliationServiceTest {
         List<BaseTrade> internal = List.of(equity("TST-001"), equity("TST-002"), equity("TST-003"));
         List<BaseTrade> external = List.of(equity("TST-001"), equity("TST-002"), equity("TST-003"));
 
-        ReconReport report = service.matchTrades(internal, external);
+        ReconSummary report = service.matchTrades(internal, external);
 
         assertThat(report.matched()).hasSize(3); 
-
-
 
     }
 
@@ -64,8 +64,31 @@ class ReconciliationServiceTest {
     // TODO(TICKET-I050): test matchTrades_missingExternal_flagsMissingTrade.
     @Test
     void matchTrades_missingExternal_flagsMissingTrade() {
-        List<BaseTrade> internal = List.of(equity)
+        List<BaseTrade> internal = List.of(equity("TRD-INT-ONLY"));
+        List<BaseTrade> external = List.of();
+
+        ReconSummary report = service.matchTrades(internal, external);
+
+        assertThat(report.discrepancies()).hasSize(1);
+        assertThat(report.discrepancies().get(0).tradeRef()).isEqualTo("TRD-INT-ONLY");
+        assertThat(report.discrepancies().get(0).types())
+                .containsExactly(DiscrepancyType.MISSING_TRADE);
     }
+
+    @Test
+    void matchTrades_missingInternal_flagsMissingTrade() {
+        List<BaseTrade> internal = List.of();
+        List<BaseTrade> external = List.of(equity("TRD-EXT-ONLY"));
+
+        ReconSummary report = service.matchTrades(internal, external);
+
+        assertThat(report.discrepancies()).hasSize(1);
+        assertThat(report.discrepancies().get(0).tradeRef()).isEqualTo("TRD-EXT-ONLY");
+        assertThat(report.discrepancies().get(0).types())
+                .containsExactly(DiscrepancyType.MISSING_TRADE);
+    }
+
+
 
     // TODO(TICKET-I051): test with @Mock TradeDAO + verify(...).findAll() called.
     @Test

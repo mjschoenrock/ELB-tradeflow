@@ -22,6 +22,6 @@ public class EquityTradeValidator implements ITradeValidator {
     @Override
     public void validate(BaseTrade trade) throws TradeValidationException {
         // TODO(TICKET-I038): implement.
-        throw new TradeValidationException("TICKET-I038: implement EquityTradeValidator");
+        throw new TradeValidationException(TradeValidationException.Code.INVALID_VALUE, "Your error message here");
     }
 }

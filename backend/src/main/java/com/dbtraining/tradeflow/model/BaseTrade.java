@@ -3,6 +3,7 @@ package com.dbtraining.tradeflow.model;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * ============================================================================
@@ -38,6 +39,33 @@ public abstract class BaseTrade {
     protected final TradeStatus status;
     protected final Instant createdAt;
 
+
+    protected BaseTrade(String tradeRef, Long instrumentId, Long counterpartyId, BigDecimal quantity, BigDecimal price, LocalDate tradeDate, TradeStatus status, Instant createdAt){
+            this.tradeRef = Objects.requireNonNull(tradeRef, "tradeRef input needed");
+            this.instrumentId = Objects.requireNonNull(instrumentId, "instrumentId needed");
+            this.counterpartyId= Objects.requireNonNull(counterpartyId, "counterPartyId needed");
+            this.quantity = Objects.requireNonNull(quantity, "quantity needed");
+            this.price = Objects.requireNonNull(price, "price needed");
+            this.tradeDate = Objects.requireNonNull(tradeDate, "tradeDate needed");
+
+            if (quantity.signum() <= 0) throw new IllegalStateException("quantity > 0 needed");
+
+            if (price.signum() < 0 ) throw new IllegalStateException("price > 0 needed");
+            if (status != null) {
+                this.status = status;
+            } else {
+                this.status = TradeStatus.PENDING;
+            }
+
+            if (createdAt != null) {
+                this.createdAt = createdAt;
+            } else {
+                this.createdAt = Instant.now();
+            }
+    }
+
+
+
     // TODO(TICKET-I028): public getters.
     
     public String getTradeRef()       { return tradeRef; }
@@ -56,6 +84,41 @@ public abstract class BaseTrade {
      * BondTrade   → "Bond coupon 4.50% mat 2030-06-15"
      */
     public abstract String assetClassDescription();
+
+    @Override
+    public boolean equals(Object object){
+        if (this == object){
+            return true;
+        }
+        if (!(object instanceof BaseTrade otherTrade)){
+            return false;
+        }
+
+        return Objects.equals(tradeRef, otherTrade.tradeRef);
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(this.tradeRef);
+    }
+
+    @Override
+    public String toString() {
+        return "Trade[" + tradeRef
+            + " | instrument=" + instrumentId
+            + " | " + quantity + " @ " + price
+            + " | " + tradeDate
+            + " | " + status + "]";
+    }
+
+    public BigDecimal getNotional() {
+        return quantity == null || price == null ? null : quantity.multiply(price);
+    }
+
+
+
+
+
 
     
 }

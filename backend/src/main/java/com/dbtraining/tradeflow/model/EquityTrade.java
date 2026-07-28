@@ -1,5 +1,14 @@
 package com.dbtraining.tradeflow.model;
+import com.dbtraining.tradeflow.model.ReconResult.Builder;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Objects;
+
+import org.springframework.cglib.core.Local;
+
+import com.dbtraining.tradeflow.model.ReconResult.Builder;
 /**
  * ============================================================================
  * EquityTrade — TICKET-I029
@@ -23,5 +32,15 @@ public class EquityTrade extends BaseTrade {
     private String exchange;
     private int lotSize;
 
-    
+    protected EquityTrade(){
+        continue;
+    }
+
+    @Override
+    public String assetClassDescription() {
+        return "Equity Trade"; 
+    }
+
+
+
 }

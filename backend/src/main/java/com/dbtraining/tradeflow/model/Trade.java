@@ -39,97 +39,25 @@ import com.dbtraining.tradeflow.model.ReconResult.Builder;
  *   accidental N+1 queries.
  * ============================================================================
  */
-public class Trade {
+public class Trade extends BaseTrade{
 
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017): define private final fields:
     // not final as JPA needs to be able to modify them
-    private String tradeRef;
-    private Long instrumentId;          // or Instrument instrument (Day 5)
-    private Long counterpartyId;        // or Counterparty (Day 5)
-    private BigDecimal quantity;
-    private BigDecimal price;
-    private LocalDate tradeDate;
-    private TradeStatus status;
-    private Instant createdAt;
+
  
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017 / TICKET-I056): private constructor used by Builder
     //   + protected no-arg constructor for JPA (Day 5).
     // ------------------------------------------------------------------------
     private Trade(Builder builder) {
-        this.tradeRef = builder.tradeRef;
-        this.instrumentId = builder.instrumentId;
-        this.counterpartyId = builder.counterpartyId;
-        this.quantity = builder.quantity;
-        this.price = builder.price;
-        this.tradeDate = builder.tradeDate;
-        this.createdAt = builder.createdAt;
-
-        if (builder.status != null){
-            this.status = builder.status;
-        } else{
-            this.status = TradeStatus.PENDING;
-        }
-
-        if (builder.createdAt != null){
-            this.createdAt = builder.createdAt;
-        } else{
-            this.createdAt = Instant.now();
-        }
+        super(builder.tradeRef, builder.instrumentId, builder.counterpartyId, builder.quantity, builder.price, builder.tradeDate, builder.status, builder.createdAt);
     }
 
     // ------------------------------------------------------------------------
     // TODO(TICKET-I017): public getters (no setters).
     // ------------------------------------------------------------------------
-    public String getTradeRef()         { return tradeRef; }
-    public Long getInstrumentId()       { return instrumentId; }
-    public Long getCounterpartyId()     { return counterpartyId; }
-    public BigDecimal getQuantity()     { return quantity; }
-    public BigDecimal getPrice()        { return price; }
-    public LocalDate getTradeDate()     { return tradeDate; }
-    public TradeStatus getStatus()      { return status; }
-    public Instant getCreatedAt()       { return createdAt; }
-
-    /** Notional = quantity * price. Computed; not stored. */
-    public BigDecimal getNotional() {
-        return quantity == null || price == null ? null : quantity.multiply(price);
-    }
-    // ------------------------------------------------------------------------
-    // TODO(TICKET-I025): equals() + hashCode() on tradeRef.
-    //   HINT: IntelliJ generate → keep only `tradeRef`.
-    // ------------------------------------------------------------------------
-    
-    @Override
-    public boolean equals(Object object){
-        if (this == object){
-            return true;
-        }
-        if (!(object instanceof Trade otherTrade)){
-            return false;
-        }
-
-        return Objects.equals(tradeRef, otherTrade.tradeRef);
-    }
-
-    @Override
-    public int hashCode(){
-        return Objects.hash(this.tradeRef);
-    }
-
-
-    // ------------------------------------------------------------------------
-    // TODO(TICKET-I017): toString() formatted for the console list (TICKET-I026)
-    //   e.g. "Trade[TRD-1 | SAP.DE | 1000 @ 152.40 EUR | 2026-03-12 | MATCHED]"
-    // ------------------------------------------------------------------------
-    @Override
-    public String toString() {
-        return "Trade[" + tradeRef
-            + " | instrument=" + instrumentId
-            + " | " + quantity + " @ " + price
-            + " | " + tradeDate
-            + " | " + status + "]";
-}
+   
     // ========================================================================
     // TODO(TICKET-I018): fluent Builder.
     //
@@ -154,6 +82,10 @@ public class Trade {
     //       }
     //   }
     // ========================================================================
+
+    public String assetClassDescription(){
+        return "Simple Trade";
+    };
 
     public static Builder builder(){
         return new Builder();
@@ -204,16 +136,7 @@ public class Trade {
 
 
         public Trade build(){
-            Objects.requireNonNull(tradeRef, "tradeRef input needed");
-            Objects.requireNonNull(instrumentId, "instrumentId needed");
-            Objects.requireNonNull(counterpartyId, "counterPartyId needed");
-            Objects.requireNonNull(quantity, "quantity needed");
-            Objects.requireNonNull(price, "price needed");
-            Objects.requireNonNull(tradeDate, "tradeDate needed");
-
-            if (quantity.signum() <= 0) throw new IllegalStateException("quantity > 0 needed");
-
-            if (price.signum() < 0 ) throw new IllegalStateException("price > 0 needed");
+            // validadtion now in BaseTrade.java
             return new Trade(this);
         }
 

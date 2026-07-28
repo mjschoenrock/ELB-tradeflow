@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * ============================================================================
@@ -62,8 +63,10 @@ public class TradeService {
      *     - groups by counterpartyId
      *     - sums quantity * price into BigDecimal
      */
-    public Map<Long, BigDecimal> sumByCounterparty() {
-        throw new UnsupportedOperationException("TICKET-I042");
+    // basically how much money have we successfully matched with each client
+    public Map<Long, BigDecimal> sumByCounterparty(List<BaseTrade> input) {
+        return input.stream().filter(t -> t.getStatus() == TradeStatus.MATCHED).collect(Collectors.groupingBy(BaseTrade::getCounterpartyId,Collectors.reducing(BigDecimal.ZERO,BaseTrade::getNotional,BigDecimal::add)));
+
     }
 
     /**

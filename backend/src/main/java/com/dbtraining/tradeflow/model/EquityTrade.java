@@ -29,16 +29,71 @@ public class EquityTrade extends BaseTrade {
     // TODO(TICKET-I029): extend BaseTrade, add exchange + lotSize, override
     //                    assetClassDescription().
 
-    private String exchange;
-    private int lotSize;
+    private final String exchange;
+    private final int lotSize;
 
-    protected EquityTrade(){
-        continue;
+    protected EquityTrade(Builder builder){
+        super(builder.tradeRef, builder.instrumentId, builder.counterpartyId, builder.quantity, builder.price, builder.tradeDate, builder.status, builder.createdAt);
+        this.exchange = Objects.requireNonNull(builder.exchange, "exchange required");
+        if (builder.lotSize <= 0) throw new IllegalStateException("lotSize must be > 0");
+        this.lotSize = builder.lotSize;
     }
 
     @Override
     public String assetClassDescription() {
-        return "Equity Trade"; 
+        return "Equity On " + this.exchange; 
+    }
+
+    public static final class Builder {
+        private String tradeRef;
+        private Long instrumentId;
+        private Long counterpartyId;
+        private BigDecimal quantity;
+        private BigDecimal price;
+        private LocalDate tradeDate;
+        private TradeStatus status;
+        private Instant createdAt;
+        private String exchange;
+        private int lotSize;
+
+        public Builder getTradeRef(String tradeRef){
+            this.tradeRef = tradeRef;
+            return this;
+        }
+        public Builder getInstrumentId(Long instrumentId){
+            this.instrumentId = instrumentId;
+            return this;
+        }
+        public Builder counterpartyId(Long counterPartyId){ 
+            this.counterpartyId = counterPartyId; return this; 
+        }
+        public Builder quantity(BigDecimal quantity){ 
+            this.quantity = quantity;       
+            return this; 
+        }
+        public Builder price(BigDecimal price){ 
+            this.price = price;          
+            return this; 
+        }
+        public Builder tradeDate(LocalDate tradeDate){ 
+            this.tradeDate = tradeDate;      
+            return this; 
+        }
+        public Builder status(TradeStatus status){ 
+            this.status = status;         
+            return this; 
+        }
+        public Builder createdAt(Instant createdAt){ 
+            this.createdAt = createdAt;      
+            return this; 
+        }
+        public Builder exchange(String exchange){ this.exchange = exchange;       
+            return this; 
+        }
+        public Builder lotSize(int lotSize){ this.lotSize = lotSize;        
+            return this; 
+        }
+
     }
 
 

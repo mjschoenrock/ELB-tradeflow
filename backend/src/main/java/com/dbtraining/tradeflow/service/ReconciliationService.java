@@ -2,10 +2,17 @@ package com.dbtraining.tradeflow.service;
 
 import com.dbtraining.tradeflow.dto.Discrepancy;
 import com.dbtraining.tradeflow.dto.ReconReport;
+import com.dbtraining.tradeflow.dto.ReconResultDto;
 import com.dbtraining.tradeflow.dto.ReconSummary;
 import com.dbtraining.tradeflow.model.BaseTrade;
 import com.dbtraining.tradeflow.model.DiscrepancyType;
+import com.dbtraining.tradeflow.model.ReconResult;
+import com.dbtraining.tradeflow.repository.ReconResultRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,6 +46,19 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ReconciliationService {
+
+    private final ReconResultRepository reconResultRepository;
+    public ReconciliationService(ReconResultRepository reconResultRepository) {
+        this.reconResultRepository = reconResultRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReconResultDto> listBreaks(ReconResult.Status status,Long counterpartyId, Pageable pageable) {
+        Page<ReconResult> page = (counterpartyId == null)
+                ? reconResultRepository.findByStatus(status, pageable)
+                : reconResultRepository.findByStatusAndCounterpartyId(status, counterpartyId, pageable);
+        return page.map(ReconResultDto::from);
+    }
 
     // TODO(TICKET-I034): constructor / dependencies (Day 5 will add repos here).
 

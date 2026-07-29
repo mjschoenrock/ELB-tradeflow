@@ -1,6 +1,8 @@
 package com.dbtraining.tradeflow.repository;
 
 import com.dbtraining.tradeflow.model.ReconResult;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,6 +33,11 @@ import java.util.List;
  */
 @Repository
 public interface ReconResultRepository extends JpaRepository<ReconResult, Long> {
+
+    Page<ReconResult> findByStatus(ReconResult.Status status, Pageable pageable);
+    Page<ReconResult> findByStatusAndCounterpartyId(ReconResult.Status status,
+                                                    Long counterpartyId,
+                                                    Pageable pageable);
 
     List<ReconResult> findByStatus(ReconResult.Status status);
 

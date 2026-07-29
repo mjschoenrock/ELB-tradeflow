@@ -104,7 +104,7 @@ public class TradeController {
             @Parameter(description = "New trade status payload")
             @RequestBody StatusUpdate body) {
         // TODO(TICKET-I070): delegate to tradeService.updateStatus(id, body.status()).
-        throw new UnsupportedOperationException("TICKET-I070");
+                return tradeService.updateStatus(id, body.status());
     }
 
     // ------------------------------------------------------------------------

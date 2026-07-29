@@ -7,7 +7,9 @@ import com.dbtraining.tradeflow.model.BaseTrade;
 import com.dbtraining.tradeflow.model.DiscrepancyType;
 import com.dbtraining.tradeflow.model.EquityTrade;
 import com.dbtraining.tradeflow.model.TradeStatus;
-import com.dbtraining.tradeflow.dto.ReconSummary;
+
+import com.dbtraining.tradeflow.dto.Discrepancy;
+import com.dbtraining.tradeflow.dto.ReconReport;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * ============================================================================
  * WHAT:    JUnit + Mockito tests for the recon engine.
  * HOW:     @ExtendWith(MockitoExtension.class). Mock the DAOs, build sample
- *          trade lists, assert on the returned ReconSummary.
+ *          trade lists, assert on the returned ReconReport.
  * WHY:     Day 4 sets a 70% coverage target. ReconciliationService is the
  *          critical path — it gets the most attention.
  * OBSERVE: `mvn test` runs these in a few seconds; JaCoCo report shows the
@@ -49,7 +51,7 @@ class ReconciliationServiceTest {
         List<BaseTrade> internal = List.of(equity("TST-001"), equity("TST-002"), equity("TST-003"));
         List<BaseTrade> external = List.of(equity("TST-001"), equity("TST-002"), equity("TST-003"));
 
-        ReconSummary report = service.matchTrades(internal, external);
+        ReconReport report = service.matchTrades(internal, external);
 
         assertThat(report.matched()).hasSize(3); 
 
@@ -67,7 +69,7 @@ class ReconciliationServiceTest {
         List<BaseTrade> internal = List.of(equity("TRD-INT-ONLY"));
         List<BaseTrade> external = List.of();
 
-        ReconSummary report = service.matchTrades(internal, external);
+        ReconReport report = service.matchTrades(internal, external);
 
         assertThat(report.discrepancies()).hasSize(1);
         assertThat(report.discrepancies().get(0).tradeRef()).isEqualTo("TRD-INT-ONLY");
@@ -80,7 +82,7 @@ class ReconciliationServiceTest {
         List<BaseTrade> internal = List.of();
         List<BaseTrade> external = List.of(equity("TRD-EXT-ONLY"));
 
-        ReconSummary report = service.matchTrades(internal, external);
+        ReconReport report = service.matchTrades(internal, external);
 
         assertThat(report.discrepancies()).hasSize(1);
         assertThat(report.discrepancies().get(0).tradeRef()).isEqualTo("TRD-EXT-ONLY");

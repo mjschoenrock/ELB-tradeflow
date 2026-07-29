@@ -33,6 +33,19 @@ import java.util.Optional;
  *  - Wrap SQLException in a RuntimeException with context (which method failed).
  * ============================================================================
  */
+
+
+
+
+
+
+// this file is to be replaced anyway as per day 5 notes, so commented out as its old cold with some conflicts 
+
+
+
+
+
+/*
 public class TradeDAO {
 
     private static final String SELECT_COLUMNS =
@@ -132,3 +145,6 @@ public class TradeDAO {
                 .build();
     }
 }
+
+
+*/

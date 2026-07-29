@@ -2,7 +2,7 @@ package com.dbtraining.tradeflow.service;
 
 import com.dbtraining.tradeflow.dto.TradeDto;
 import com.dbtraining.tradeflow.dto.TradeRequest;
-import com.dbtraining.tradeflow.model.BaseTrade;
+import com.dbtraining.tradeflow.model.Trade;
 import com.dbtraining.tradeflow.model.TradeStatus;
 import org.springframework.stereotype.Service;
 
@@ -41,18 +41,18 @@ import java.util.Comparator;
 public class TradeService {
 
     // TODO(TICKET-I041): in-memory store as HashMap keyed by tradeRef.
-    private final Map<String, BaseTrade> tradesByRef = new HashMap<>();
+    private final Map<String, Trade> tradesByRef = new HashMap<>();
 
     // TODO(TICKET-I062) [Day 5]: replace the Map with TradeRepository injection:
     //   private final TradeRepository tradeRepository;
     //   public TradeService(TradeRepository tradeRepository) { ... }
 
-    public Collection<BaseTrade> getAllTrades() {
+    public Collection<Trade> getAllTrades() {
         // TODO(TICKET-I041): return an unmodifiable view of the values.
         return Collections.unmodifiableCollection(tradesByRef.values());
     }
 
-    public void addTrade(BaseTrade trade) {
+    public void addTrade(Trade trade) {
     if (tradesByRef.containsKey(trade.getTradeRef())) {
         throw new IllegalStateException("Duplicate tradeRef: " + trade.getTradeRef());
     }
@@ -67,8 +67,8 @@ public class TradeService {
      *     - sums quantity * price into BigDecimal
      */
     // basically how much money have we successfully matched with each client
-    public Map<Long, BigDecimal> sumByCounterparty(List<BaseTrade> input) {
-        return input.stream().filter(t -> t.getStatus() == TradeStatus.MATCHED).collect(Collectors.groupingBy(BaseTrade::getCounterpartyId,Collectors.reducing(BigDecimal.ZERO,BaseTrade::getNotional,BigDecimal::add)));
+    public Map<Long, BigDecimal> sumByCounterparty(List<Trade> input) {
+        return input.stream().filter(t -> t.getStatus() == TradeStatus.MATCHED).collect(Collectors.groupingBy(t -> t.getCounterparty().getId(),Collectors.reducing(BigDecimal.ZERO,Trade::getNotional,BigDecimal::add)));
 
     }
 
@@ -76,13 +76,13 @@ public class TradeService {
      * TODO(TICKET-I043):
      *   Top N trades by notional value (quantity * price) descending.
      */
-    public List<BaseTrade> topNByValue(int n) {
+    public List<Trade> topNByValue(int n) {
         
         if(!(n > 0)) {
             throw new IllegalArgumentException("Error: n was less than zero");
         }
 
-        return trades.values.stream().sorted(Comparator.comparing(BaseTrade::getNotional).reversed()).limit(n).toList();
+        return tradesByRef.values().stream().sorted(Comparator.comparing(Trade::getNotional).reversed()).limit(n).toList();
     }
 
     /**

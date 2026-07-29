@@ -119,10 +119,20 @@ private static BaseTrade equityWith(String ref, BigDecimal qty, BigDecimal price
 
 
 
+    @Mock private TradeDAO tradeDAO;
+
     // TODO(TICKET-I051): test with @Mock TradeDAO + verify(...).findAll() called.
     @Test
     void mockedTradeDAO_findAllCalledOnce() {
-        fail("TICKET-I051: implement test");
+        
+        Trade testTrade = equity("TRD-TEST");
+        when(tradeDAO.findAll()).thenReturn(testTrade);
+
+        ReconSummary reconSummary = service.runForAll();
+        
+        verify(tradeDAO, times(1)).findAll();
+
+        assertThat(reconSummary.totalTrades()).isEqualTo(1);
     }
 
     // TODO(TICKET-I052): test with @Mock ReconResultDAO + ArgumentCaptor.

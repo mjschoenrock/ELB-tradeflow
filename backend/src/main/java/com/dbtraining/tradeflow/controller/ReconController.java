@@ -2,6 +2,9 @@ package com.dbtraining.tradeflow.controller;
 
 import com.dbtraining.tradeflow.dto.ReconSummary;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +33,9 @@ import java.util.Map;
 public class ReconController {
 
     @Operation(summary = "Trigger a reconciliation run")
+        @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reconciliation summary returned successfully")
+        })
     @PostMapping("/run")
     public ReconSummary run() {
         // TODO(TICKET-I072): inject ReconciliationService, call run(), return summary.
@@ -37,8 +43,13 @@ public class ReconController {
     }
 
     @Operation(summary = "List reconciliation results")
+        @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reconciliation results returned successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid status filter supplied")
+        })
     @GetMapping("/results")
     public List<Map<String, Object>> listResults(
+            @Parameter(description = "Optional break status filter")
             @RequestParam(required = false, defaultValue = "OPEN") String status) {
         // TODO(TICKET-I073): paginated query via ReconBreakRepository
         //   (or JdbcTemplate JOIN onto `trades` to surface trade_ref).
@@ -47,8 +58,14 @@ public class ReconController {
     }
 
     @Operation(summary = "Mark a break as resolved")
+        @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Reconciliation break resolved successfully"),
+            @ApiResponse(responseCode = "404", description = "Reconciliation break not found")
+        })
     @PutMapping("/{id}/resolve")
-    public void resolve(@PathVariable Long id) {
+        public void resolve(
+            @Parameter(description = "Reconciliation break identifier")
+            @PathVariable Long id) {
         // TODO(TICKET-I074): update status to RESOLVED, set resolved_at, write audit log.
         throw new UnsupportedOperationException("TICKET-I074");
     }

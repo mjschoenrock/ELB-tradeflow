@@ -3,10 +3,6 @@ package com.dbtraining.tradeflow.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.dbtraining.tradeflow.model.BaseTrade;
-import com.dbtraining.tradeflow.model.DiscrepancyType;
-import com.dbtraining.tradeflow.model.EquityTrade;
-import com.dbtraining.tradeflow.model.TradeStatus;
 
 import com.dbtraining.tradeflow.dto.Discrepancy;
 import com.dbtraining.tradeflow.dto.ReconReport;
@@ -17,6 +13,18 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
+
+
+// mockito imports
+import com.dbtraining.tradeflow.model.*;
+import org.mockito.ArgumentCaptor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * ============================================================================
@@ -119,7 +127,29 @@ private static BaseTrade equityWith(String ref, BigDecimal qty, BigDecimal price
 
     // TODO(TICKET-I052): test with @Mock ReconResultDAO + ArgumentCaptor.
     @Test
-    void mockedReconResultDAO_insertCalledPerDiscrepancy() {
-        fail("TICKET-I052: implement test");
+    void runForAll_oneDiscrepancy_insertsOneReconResult() {
+        Trade internalOnly = sampleTrade("TRD-INT-ONLY");
+        when(tradeDAO.findAll()).thenReturn(List.of(internalOnly));
+
+        service.runForAll();
+
+        ArgumentCaptor<ReconResult> captor = ArgumentCaptor.forClass(ReconResult.class);
+        verify(reconResultDAO, times(1)).insert(captor.capture());
+        ReconResult inserted = captor.getValue();
+
+        assertThat(inserted.getDiscrepancyType())
+                .isEqualTo(DiscrepancyType.MISSING_TRADE);
+        assertThat(inserted.getStatus())
+                .isEqualTo(ReconResult.Status.OPEN);
+    }
+
+    @Test
+    void runForAll_allMatched_neverCallsInsert() {
+        Trade matched = sampleTrade("TRD-1");
+        when(tradeDAO.findAll()).thenReturn(List.of(matched));
+
+        service.runForAll();
+
+        verify(reconResultDAO, never()).insert(any(ReconResult.class));
     }
 }

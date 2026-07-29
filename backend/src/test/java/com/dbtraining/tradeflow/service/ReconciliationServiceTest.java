@@ -8,6 +8,7 @@ import com.dbtraining.tradeflow.model.DiscrepancyType;
 import com.dbtraining.tradeflow.model.EquityTrade;
 import com.dbtraining.tradeflow.model.TradeStatus;
 import com.dbtraining.tradeflow.dto.ReconSummary;
+import com.dbtraining.tradeflow.dto.Discrepancy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -58,8 +59,25 @@ class ReconciliationServiceTest {
     // TODO(TICKET-I049): test matchTrades_priceMismatch_flagsDiscrepancy.
     @Test
     void matchTrades_priceMismatch_flagsDiscrepancy() {
-        fail("TICKET-I049: implement test");
-    }
+        BaseTrade in  = equityWith("TRD-001", new BigDecimal("100"), new BigDecimal("245.50"), LocalDate.of(2026, 3, 1));
+        BaseTrade out = equityWith("TRD-001", new BigDecimal("100"), new BigDecimal("245.99"), LocalDate.of(2026, 3, 1));
+
+        ReconReport report = service.matchTrades(List.of(in), List.of(out));
+
+        assertThat(report.matched()).isEmpty();
+        assertThat(report.discrepancies()).hasSize(1);
+        Discrepancy d = report.discrepancies().get(0);
+        assertThat(d.tradeRef()).isEqualTo("TRD-001");
+        assertThat(d.types()).containsExactly(DiscrepancyType.PRICE_MISMATCH);
+}
+
+private static BaseTrade equityWith(String ref, BigDecimal qty, BigDecimal price, LocalDate date) {
+    return EquityTrade.builder()
+            .tradeRef(ref).instrumentId(1L).counterpartyId(1L)
+            .quantity(qty).price(price).tradeDate(date)
+            .status(TradeStatus.MATCHED).exchange("XETRA").lotSize(100)
+            .build();
+}
 
     // TODO(TICKET-I050): test matchTrades_missingExternal_flagsMissingTrade.
     @Test

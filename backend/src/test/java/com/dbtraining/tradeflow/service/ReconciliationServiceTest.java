@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -33,6 +33,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 @ExtendWith(MockitoExtension.class)
 class ReconciliationServiceTest {
+
+    private final ReconciliationService service = new ReconciliationService();
 
     private static BaseTrade equity(String tradeRef) {
         return EquityTrade.builder()

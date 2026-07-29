@@ -33,29 +33,29 @@ public class AuditLog {
     // TODO(TICKET-I059): fields + JPA annotations.
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
     @Column(name="ENTITY")
     @Enumerated(EnumType.STRING)
     private String entity;
 
-    @Column(name="ENTITY_ID)
+    @Column(name="ENTITY_ID")
     private Long entityId;
 
     @Column(name="ACTION")
     @Enumerated(EnumType.STRING)
     private String action;
     
-    @Column(columnDefinition = "jsonb"
+    @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private String oldValue;
 
-    @Column(columnDefinition = "jsonb"
+    @Column(columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private String newValue;
 
-    @Column(name="TIMESTAMP")
+    @Column(name="CREATED_AT")
     private Instant timestamp;
 
     @Column(name="USERNAME")

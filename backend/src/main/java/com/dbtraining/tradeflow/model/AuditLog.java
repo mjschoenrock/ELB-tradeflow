@@ -27,6 +27,39 @@ package com.dbtraining.tradeflow.model;
  *      private String oldValue;
  * ============================================================================
  */
+@Entity
+@Table(name="audit_log")
 public class AuditLog {
     // TODO(TICKET-I059): fields + JPA annotations.
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(name="ENTITY")
+    @Enumerated(EnumType.STRING)
+    private String entity;
+
+    @Column(name="ENTITY_ID)
+    private Long entityId;
+
+    @Column(name="ACTION")
+    @Enumerated(EnumType.STRING)
+    private String action;
+    
+    @Column(columnDefinition = "jsonb"
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String oldValue;
+
+    @Column(columnDefinition = "jsonb"
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String newValue;
+
+    @Column(name="TIMESTAMP")
+    private Instant timestamp;
+
+    @Column(name="USERNAME")
+    @Enumerated(EnumType.STRING)
+    private String userName;
+   
 }

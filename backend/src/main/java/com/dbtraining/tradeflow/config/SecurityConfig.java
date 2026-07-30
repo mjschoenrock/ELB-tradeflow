@@ -46,13 +46,38 @@ public class SecurityConfig {
         // ====================================================================
 
         return http
-                .csrf(csrf -> csrf.disable())
-                .headers(h -> h.frameOptions(f -> f.disable())) // allow /h2-console in dev
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .build();
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/**").hasRole("VIEWER")
+                .requestMatchers("/api/v1/**").hasRole("TRADER")
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
+                .anyRequest().authenticated())
+            .httpBasic(Customizer.withDefaults())
+            .build();
+    }
+    
+    // TODO(TICKET-I076): @Bean PasswordEncoder (BCrypt).
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
-    // TODO(TICKET-I076): @Bean PasswordEncoder (BCrypt).
     // TODO(TICKET-I076): @Bean InMemoryUserDetailsManager with admin/trader/viewer.
+    @Bean
+    public InMemoryUserDetailsManager userDetailsManager(PasswordEncoder passwordEncoder() {
+        UserDetails admin = User.withUsername("admin").password(encoder.encode("admin")).roles("ADMIN").build();
+        UserDetails trader = User.withUsername("trader").password(encoder.encode("trader")).roles("TRADER").build();
+        UserDetails viewer = User.withUsername("viewer").password(encoder.encode("viewer")).roles("VIEWER").build();
+
+        return new InMemoryUserDetailsManager(admin, trader, viewer);
+        
+    }
+    
     // TODO(TICKET-I077): @Bean RoleHierarchy if you want ADMIN > TRADER > VIEWER.
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.withDefaultRolePrefix().role("ADMIN").implies("TRADER").role("TRADER").implies("VIEWER").build();
+    }
+    
 }

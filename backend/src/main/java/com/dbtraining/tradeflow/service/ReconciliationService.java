@@ -4,10 +4,14 @@ import com.dbtraining.tradeflow.dto.Discrepancy;
 import com.dbtraining.tradeflow.dto.ReconReport;
 import com.dbtraining.tradeflow.dto.ReconResultDto;
 import com.dbtraining.tradeflow.dto.ReconSummary;
+import com.dbtraining.tradeflow.exception.TradeNotFoundException;
 import com.dbtraining.tradeflow.model.BaseTrade;
 import com.dbtraining.tradeflow.model.DiscrepancyType;
 import com.dbtraining.tradeflow.model.ReconResult;
 import com.dbtraining.tradeflow.repository.ReconResultRepository;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,8 +52,13 @@ import java.util.stream.Collectors;
 public class ReconciliationService {
 
     private final ReconResultRepository reconResultRepository;
-    public ReconciliationService(ReconResultRepository reconResultRepository) {
+    private final Counter reconResolvedCounter;
+
+    public ReconciliationService(ReconResultRepository reconResultRepository, MeterRegistry meterRegistry) {
         this.reconResultRepository = reconResultRepository;
+        this.reconResolvedCounter = Counter.builder("tradeflow_recon_resolved_total")
+                .description("Count of recon breaks marked RESOLVED")
+                .register(meterRegistry);
     }
 
     @Transactional(readOnly = true)
@@ -143,5 +152,18 @@ public class ReconciliationService {
         s.breakdownByType().forEach((type, count) ->
                 sb.append(String.format("    - %-20s %d%n", type, count)));
         return sb.toString();
+    }
+
+
+    @Transactional
+    public void resolveBreak(Long id) {
+        ReconResult r = reconResultRepository.findById(id)
+                .orElseThrow(() -> new TradeNotFoundException("Recon break " + id + " not found"));
+        if (r.getStatus() == ReconResult.Status.RESOLVED) {
+            return;  // idempotent
+        }
+        r.resolve();
+        reconResolvedCounter.increment();
+        // Audit row is written by the Day-2 DB trigger on UPDATE.
     }
 }

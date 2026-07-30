@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -55,12 +56,11 @@ public class ReconController {
         throw new UnsupportedOperationException("TICKET-I072");
     }
 
-    @Operation(summary = "List reconciliation results")
+    @Operation(summary = "List recon breaks (paginated; defaults to OPEN)")
         @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reconciliation results returned successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid status filter supplied")
         })
-    @Operation(summary = "List recon breaks (paginated; defaults to OPEN)")
     @GetMapping("/results")
     public Page<ReconResultDto> listResults(
             @RequestParam(required = false, defaultValue = "OPEN") String status,
@@ -70,16 +70,19 @@ public class ReconController {
         return reconService.listBreaks(parsed, counterpartyId, pageable);
     }
 
-    @Operation(summary = "Mark a break as resolved")
-        @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Reconciliation break resolved successfully"),
-            @ApiResponse(responseCode = "404", description = "Reconciliation break not found")
-        })
+    // ReconController.java
+    @Operation(summary = "Mark a recon break as RESOLVED")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Resolved (idempotent)"),
+            @ApiResponse(responseCode = "404", description = "Break not found")
+    })
     @PutMapping("/{id}/resolve")
-        public void resolve(
-            @Parameter(description = "Reconciliation break identifier")
-            @PathVariable Long id) {
-        // TODO(TICKET-I074): update status to RESOLVED, set resolved_at, write audit log.
-        throw new UnsupportedOperationException("TICKET-I074");
+    public ResponseEntity<Void> resolve(@PathVariable Long id) {
+        reconService.resolveBreak(id);
+        return ResponseEntity.noContent().build();
     }
+
+
+
+
 }

@@ -53,7 +53,7 @@ public class ReconController {
     @PostMapping("/run")
     public ReconSummary run() {
         // TODO(TICKET-I072): inject ReconciliationService, call run(), return summary.
-        throw new UnsupportedOperationException("TICKET-I072");
+        return reconService.runForAll();
     }
 
     @Operation(summary = "List recon breaks (paginated; defaults to OPEN)")

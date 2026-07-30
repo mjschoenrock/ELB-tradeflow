@@ -12,6 +12,7 @@ import com.dbtraining.tradeflow.repository.ReconResultRepository;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,10 +53,12 @@ import java.util.stream.Collectors;
 public class ReconciliationService {
 
     private final ReconResultRepository reconResultRepository;
+    private final Timer reconRunTimer;
     private final Counter reconResolvedCounter;
 
     public ReconciliationService(ReconResultRepository reconResultRepository, MeterRegistry meterRegistry) {
         this.reconResultRepository = reconResultRepository;
+        this.reconRunTimer = meterRegistry.timer("tradeflow_recon_run_seconds");
         this.reconResolvedCounter = Counter.builder("tradeflow_recon_resolved_total")
                 .description("Count of recon breaks marked RESOLVED")
                 .register(meterRegistry);
@@ -140,6 +143,25 @@ public class ReconciliationService {
                 report.discrepancies().size(),
                 Collections.unmodifiableMap(breakdown));
     }
+
+    // ReconciliationService.java
+    @Transactional(readOnly = true)
+    public ReconSummary runForAll() {
+        return reconRunTimer.record(() -> {
+            long matched   = reconResultRepository.countByStatus(ReconResult.Status.RESOLVED);
+            long unmatched = reconResultRepository.countByStatus(ReconResult.Status.OPEN);
+
+            Map<DiscrepancyType, Integer> breakdown = new EnumMap<>(DiscrepancyType.class);
+            for (DiscrepancyType t : DiscrepancyType.values()) breakdown.put(t, 0);
+            for (ReconResult r : reconResultRepository.findByStatus(ReconResult.Status.OPEN)) {
+                breakdown.merge(r.getDiscrepancyType(), 1, Integer::sum);
+        }
+
+            long total = matched + unmatched;
+            return new ReconSummary((int) total, (int) total, (int) matched, (int) unmatched, breakdown);
+        });
+    }
+
 
     public String render(ReconSummary s) {
         StringBuilder sb = new StringBuilder();

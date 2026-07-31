@@ -1,11 +1,14 @@
 package com.dbtraining.tradeflow.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.dbtraining.tradeflow.dto.Discrepancy;
 import com.dbtraining.tradeflow.dto.ReconReport;
+import com.dbtraining.tradeflow.dto.ReconSummary;
+import com.dbtraining.tradeflow.repository.ReconResultRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.dbtraining.tradeflow.model.*;
 import org.mockito.ArgumentCaptor;
 
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -43,7 +47,15 @@ import org.mockito.Mock;
 @ExtendWith(MockitoExtension.class)
 class ReconciliationServiceTest {
 
-    private final ReconciliationService service = new ReconciliationService();
+    @Mock
+    private ReconResultRepository reconResultRepository;
+
+    private ReconciliationService service;
+
+    @BeforeEach
+    void setup() {
+        service = new ReconciliationService(reconResultRepository, new SimpleMeterRegistry());
+    }
 
     private static BaseTrade equity(String tradeRef) {
         return EquityTrade.builder()
@@ -65,6 +77,7 @@ class ReconciliationServiceTest {
         ReconReport report = service.matchTrades(internal, external);
 
         assertThat(report.matched()).hasSize(3); 
+        assertThat(report.discrepancies()).isEmpty();
 
     }
 
@@ -118,49 +131,59 @@ private static BaseTrade equityWith(String ref, BigDecimal qty, BigDecimal price
                 .containsExactly(DiscrepancyType.MISSING_TRADE);
     }
 
-
-
-    @Mock private TradeDAO tradeDAO;
-
     // TODO(TICKET-I051): test with @Mock TradeDAO + verify(...).findAll() called.
+
+    private static ReconResult openBreak(DiscrepancyType type) {
+        return ReconResult.builder().discrepancyType(type).status(ReconResult.Status.OPEN).build();
+    }
+
     @Test
-    void mockedTradeDAO_findAllCalledOnce() {
+    void findAllCalledOnce() {
         
-        Trade testTrade = equity("TRD-TEST");
-        when(tradeDAO.findAll()).thenReturn(testTrade);
+        when(reconResultRepository.countByStatus(ReconResult.Status.RESOLVED)).thenReturn(2L);
+        when(reconResultRepository.countByStatus(ReconResult.Status.OPEN)).thenReturn(1L);
+        when(reconResultRepository.findByStatus(ReconResult.Status.OPEN))
+                .thenReturn(List.of(openBreak(DiscrepancyType.MISSING_TRADE)));
+ 
+        ReconSummary summary = service.runForAll();
+ 
+        verify(reconResultRepository).countByStatus(ReconResult.Status.RESOLVED);
+        verify(reconResultRepository).countByStatus(ReconResult.Status.OPEN);
+        verify(reconResultRepository).findByStatus(ReconResult.Status.OPEN);
+ 
+        assertThat(summary.matchedCount()).isEqualTo(2);
+        assertThat(summary.unmatchedCount()).isEqualTo(1);
+        assertThat(summary.totalInternal()).isEqualTo(3);
+        assertThat(summary.totalExternal()).isEqualTo(3);
 
-        ReconSummary reconSummary = service.runForAll();
-        
-        verify(tradeDAO, times(1)).findAll();
-
-        assertThat(reconSummary.totalTrades()).isEqualTo(1);
     }
 
     // TODO(TICKET-I052): test with @Mock ReconResultDAO + ArgumentCaptor.
     @Test
     void runForAll_oneDiscrepancy_insertsOneReconResult() {
-        Trade internalOnly = sampleTrade("TRD-INT-ONLY");
-        when(tradeDAO.findAll()).thenReturn(List.of(internalOnly));
+        when(reconResultRepository.countByStatus(ReconResult.Status.RESOLVED)).thenReturn(0L);
+        when(reconResultRepository.countByStatus(ReconResult.Status.OPEN)).thenReturn(1L);
+        when(reconResultRepository.findByStatus(ReconResult.Status.OPEN))
+                .thenReturn(List.of(openBreak(DiscrepancyType.MISSING_TRADE)));
+ 
+        ReconSummary summary = service.runForAll();
+ 
+        assertThat(summary.breakdownByType().get(DiscrepancyType.MISSING_TRADE)).isEqualTo(1);
+        assertThat(summary.breakdownByType().get(DiscrepancyType.PRICE_MISMATCH)).isEqualTo(0);
 
-        service.runForAll();
-
-        ArgumentCaptor<ReconResult> captor = ArgumentCaptor.forClass(ReconResult.class);
-        verify(reconResultDAO, times(1)).insert(captor.capture());
-        ReconResult inserted = captor.getValue();
-
-        assertThat(inserted.getDiscrepancyType())
-                .isEqualTo(DiscrepancyType.MISSING_TRADE);
-        assertThat(inserted.getStatus())
-                .isEqualTo(ReconResult.Status.OPEN);
     }
 
     @Test
     void runForAll_allMatched_neverCallsInsert() {
-        Trade matched = sampleTrade("TRD-1");
-        when(tradeDAO.findAll()).thenReturn(List.of(matched));
+        when(reconResultRepository.countByStatus(ReconResult.Status.RESOLVED)).thenReturn(5L);
+        when(reconResultRepository.countByStatus(ReconResult.Status.OPEN)).thenReturn(0L);
+        when(reconResultRepository.findByStatus(ReconResult.Status.OPEN))
+                .thenReturn(List.of());
+ 
+        ReconSummary summary = service.runForAll();
+ 
+        assertThat(summary.unmatchedCount()).isEqualTo(0);
+        summary.breakdownByType().values().forEach(count -> assertThat(count).isEqualTo(0));
 
-        service.runForAll();
-
-        verify(reconResultDAO, never()).insert(any(ReconResult.class));
     }
 }

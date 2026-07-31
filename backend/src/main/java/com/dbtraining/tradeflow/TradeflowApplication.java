@@ -34,24 +34,6 @@ public class TradeflowApplication {
     public static void main(String[] args) {
         printBanner();
 
-        //testing I025
-        Trade a = Trade.builder()
-                .tradeRef("TRD-1")
-                .instrumentId(1L).counterpartyId(1L)
-                .quantity(new BigDecimal("100")).price(new BigDecimal("50.00"))
-                .tradeDate(LocalDate.now())
-                .build();
-        Trade b = Trade.builder()
-                .tradeRef("TRD-1").instrumentId(1L).counterpartyId(1L)
-                .quantity(new BigDecimal("200")).price(new BigDecimal("99.99"))  // ... different qty/price
-                .tradeDate(LocalDate.now())
-                .build();
-        if (!a.equals(b))                    throw new AssertionError("equals broken");
-        if (a.hashCode() != b.hashCode())    throw new AssertionError("hashCode broken");
-
-        System.out.println("SUCCESS YIPPEE");
-
-        printDay2Demo();
 
         
     }
@@ -73,22 +55,4 @@ public class TradeflowApplication {
     }
 
 
-
-    private static void printDay2Demo(){
-
-        List<Trade> trades = List.of(Trade.builder().tradeRef("TRD-1").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("100")).price(new BigDecimal("50.00")).tradeDate(LocalDate.now()).build(),
-                                    Trade.builder().tradeRef("TRD-2").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("200")).price(new BigDecimal("99.99")).tradeDate(LocalDate.now()).build(),
-                                    Trade.builder().tradeRef("TRD-3").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("110")).price(new BigDecimal("51.00")).tradeDate(LocalDate.now()).build(),
-                                    Trade.builder().tradeRef("TRD-4").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("700")).price(new BigDecimal("57.00")).tradeDate(LocalDate.now()).build(),
-                                    Trade.builder().tradeRef("TRD-5").instrumentId(1L).counterpartyId(1L).quantity(new BigDecimal("101")).price(new BigDecimal("5.00")).tradeDate(LocalDate.now()).build());
-        
-        System.out.println();
-        System.out.printf("%-15s | %-13s | %-5s | %-10s | %-10s | %-12s | %-10s%n",
-                "TRADE_REF", "INSTRUMENT_ID", "CP_ID", "QTY", "PRICE", "DATE", "STATUS");
-        trades.forEach(t -> System.out.printf("%-15s | %-13s | %-5s | %10s | %10s | %-12s | %-10s%n",
-                    t.getTradeRef(), t.getInstrumentId(), t.getCounterpartyId(), t.getQuantity(), t.getPrice(), t.getTradeDate(), t.getStatus()));
-        System.out.println("");
-        
-
-    }
 }

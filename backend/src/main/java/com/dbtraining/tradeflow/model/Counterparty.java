@@ -1,19 +1,30 @@
 package com.dbtraining.tradeflow.model;
 
 import java.util.Objects;
+import jakarta.persistence.*;
 
 /**
  * Counterparty — POJO mirroring the counterparties table.
  * Equality on leiCode (globally-unique Legal Entity Identifier).
  */
+
+@Entity
+@Table(name = "counterparties")
 public class Counterparty {
 
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 100)
     private String name;
+
+    @Column(name = "lei_code", nullable = false, unique = true, length = 20)
     private String leiCode;
+
+    @Column(name = "region", nullable = false, length = 10)
     private String region;
 
-    Counterparty() {}
+    protected Counterparty() {}
 
     private Counterparty(Builder b) {
         this.name    = b.name;

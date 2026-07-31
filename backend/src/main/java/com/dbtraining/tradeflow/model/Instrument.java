@@ -1,22 +1,38 @@
 package com.dbtraining.tradeflow.model;
 
 import java.util.Objects;
+import jakarta.persistence.*;
 
 /**
  * Instrument — POJO mirroring the instruments table.
  * Equality on symbol (e.g. "SAP.DE", "EURUSD"). ISIN may be null for FX
  * and commodities.
  */
+
+@Entity
+@Table(name = "instruments")
 public class Instrument {
 
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 20)
     private String symbol;
+
+    @Column(nullable = false, length = 200)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "asset_class", nullable = false, length = 20)
     private AssetClass assetClass;
+
+    @Column(nullable = false, length = 3)
     private String currency;
+
+    @Column(nullable = true, unique = true, length = 12)
     private String isin;
 
-    Instrument() {}
+    protected Instrument() {}
 
     private Instrument(Builder b) {
         this.symbol     = b.symbol;

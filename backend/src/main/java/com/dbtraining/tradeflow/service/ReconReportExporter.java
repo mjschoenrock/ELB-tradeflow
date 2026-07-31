@@ -53,7 +53,7 @@ public class ReconReportExporter {
                 if (results != null) {
                     for (ReconResult result : results) {
                         String row = String.join(",",
-                            escape(result.getTradeId()),
+                            escape(result.getTrade().getId()),
                             escape(result.getStatus()),
                             escape(result.getDiscrepancyType()),
                             escape(result.getResolvedAt())

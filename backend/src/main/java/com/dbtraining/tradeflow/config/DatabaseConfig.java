@@ -31,6 +31,15 @@ import javax.sql.DataSource;
 public class DatabaseConfig {
 
     public static DataSource dataSource() {
-        throw new UnsupportedOperationException("TICKET-I044: configure HikariCP");
+
+        HikariConfig cfg = new HikariConfig();
+
+        cfg.setJdbcUrl(System.getenv().getOrDefault("JDBC_URL", "jdbc:postgresql://localhost:5432/tradeflow"));
+        cfg.setUsername(System.getenv().getOrDefault("POSTGRES_USER", "tradeflow_user"));
+        cfg.setPassword(System.getenv().getOrDefault("POSTGRES_PASSWORD", "changeme"));
+        cfg.setMaximumPoolSize(10);
+        cfg.setConnectionTimeout(5_000);
+        
+        return new HikariDataSource(cfg);
     }
 }

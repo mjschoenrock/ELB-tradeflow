@@ -1,107 +1,88 @@
 package com.dbtraining.tradeflow.model;
 
+import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.Objects;
 
-/**
- * ============================================================================
- * ReconResult — TICKET-I024 + TICKET-I058
- * ============================================================================
- * WHAT:    Outcome of comparing one trade against its external counterpart.
- *          One row per break (or per matched trade, depending on team policy).
- * HOW:     POJO on Day 2; @Entity on Day 5.
- * WHY:     The Ops UI page on Day 8 lists ReconResults so users can resolve.
- * OBSERVE: A row with status='OPEN' and discrepancyType=PRICE_MISMATCH means
- *          a human has to investigate.
- * ============================================================================
- */
+@Entity
+@Table(name = "recon_breaks")
 public class ReconResult {
 
-    private final Long id;
-    private final Long tradeId;
-    private final String status;
-    private final DiscrepancyType discrepancyType;
-    private final Instant resolvedAt;
-    private final Instant createdAt;
+    public enum Status { OPEN, RESOLVED, SUPPRESSED }
 
-    private ReconResult(Builder builder) {
-        this.id = builder.id;
-        this.tradeId = builder.tradeId;
-        this.status = builder.status;
-        this.discrepancyType = builder.discrepancyType;
-        this.resolvedAt = builder.resolvedAt;
-        this.createdAt = builder.createdAt;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "trade_id")
+    private Trade trade;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "discrepancy_type", nullable = false, length = 30)
+    private DiscrepancyType discrepancyType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Status status;
+
+    @Column(name = "detected_at", nullable = false, updatable = false)
+    private Instant detectedAt;
+
+    @Column(name = "resolved_at")
+    private Instant resolvedAt;       // nullable
+
+    protected ReconResult() {}
+
+    private ReconResult(Builder b) {
+        this.trade           = b.trade;
+        this.discrepancyType = b.discrepancyType;
+        this.status          = b.status != null ? b.status : Status.OPEN;
+        this.detectedAt      = b.detectedAt != null ? b.detectedAt : Instant.now();
+        this.resolvedAt      = b.resolvedAt;
     }
 
-    // Getters
-    public Long getId() {
-        return id;
-    }
+    public static Builder builder() { return new Builder(); }
 
-    public Long getTradeId() {
-        return tradeId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public DiscrepancyType getDiscrepancyType() {
-        return discrepancyType;
-    }
-
-    public Instant getResolvedAt() {
-        return resolvedAt;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    // Builder Pattern
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private Long id;
-        private Long tradeId;
-        private String status;
+    public static final class Builder {
+        private Trade trade;
         private DiscrepancyType discrepancyType;
+        private Status status;
+        private Instant detectedAt;
         private Instant resolvedAt;
-        private Instant createdAt = Instant.now(); // Default to current time
 
-        public Builder id(Long id) {
-            this.id = id;
-            return this;
-        }
+        public Builder trade(Trade v)                       { this.trade = v; return this; }
+        public Builder discrepancyType(DiscrepancyType v)   { this.discrepancyType = v; return this; }
+        public Builder status(Status v)                     { this.status = v; return this; }
+        public Builder detectedAt(Instant v)                { this.detectedAt = v; return this; }
+        public Builder resolvedAt(Instant v)                { this.resolvedAt = v; return this; }
 
-        public Builder tradeId(Long tradeId) {
-            this.tradeId = tradeId;
-            return this;
-        }
-
-        public Builder status(String status) {
-            this.status = status;
-            return this;
-        }
-
-        public Builder discrepancyType(DiscrepancyType discrepancyType) {
-            this.discrepancyType = discrepancyType;
-            return this;
-        }
-
-        public Builder resolvedAt(Instant resolvedAt) {
-            this.resolvedAt = resolvedAt;
-            return this;
-        }
-
-        public Builder createdAt(Instant createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-
-        public ReconResult build() {
-            return new ReconResult(this);
-        }
+        public ReconResult build() { return new ReconResult(this); }
     }
+
+    public void resolve() {
+        if (this.status == Status.RESOLVED) return;
+        this.status = Status.RESOLVED;
+        this.resolvedAt = Instant.now();
+    }
+
+    public boolean isOpen() { return status == Status.OPEN; }
+
+    public Long getId()                          { return id; }
+    public Trade getTrade()                      { return trade; }
+    public DiscrepancyType getDiscrepancyType()  { return discrepancyType; }
+    public Status getStatus()                    { return status; }
+    public Instant getDetectedAt()               { return detectedAt; }
+    public Instant getResolvedAt()               { return resolvedAt; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ReconResult other)) return false;
+        return Objects.equals(trade, other.trade)
+            && discrepancyType == other.discrepancyType
+            && Objects.equals(detectedAt, other.detectedAt);
+    }
+
+    @Override
+    public int hashCode() { return Objects.hash(trade, discrepancyType, detectedAt); }
 }

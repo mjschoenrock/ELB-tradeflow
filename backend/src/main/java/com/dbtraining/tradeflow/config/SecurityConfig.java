@@ -2,7 +2,16 @@ package com.dbtraining.tradeflow.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -65,19 +74,24 @@ public class SecurityConfig {
 
     // TODO(TICKET-I076): @Bean InMemoryUserDetailsManager with admin/trader/viewer.
     @Bean
-    public InMemoryUserDetailsManager userDetailsManager(PasswordEncoder passwordEncoder() {
+    public InMemoryUserDetailsManager userDetailsManager(PasswordEncoder encoder) {
         UserDetails admin = User.withUsername("admin").password(encoder.encode("admin")).roles("ADMIN").build();
         UserDetails trader = User.withUsername("trader").password(encoder.encode("trader")).roles("TRADER").build();
         UserDetails viewer = User.withUsername("viewer").password(encoder.encode("viewer")).roles("VIEWER").build();
 
         return new InMemoryUserDetailsManager(admin, trader, viewer);
-        
+
     }
     
     // TODO(TICKET-I077): @Bean RoleHierarchy if you want ADMIN > TRADER > VIEWER.
     @Bean
     public RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.withDefaultRolePrefix().role("ADMIN").implies("TRADER").role("TRADER").implies("VIEWER").build();
+        // NOTE: RoleHierarchyImpl.withDefaultRolePrefix()/.role().implies() is a
+        // Spring Security 6.3+ builder API. This project is pinned to Spring Boot
+        // 3.2.4 (Spring Security 6.2.x), so use the pre-6.3 setHierarchy() form.
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+        hierarchy.setHierarchy("ROLE_ADMIN > ROLE_TRADER\nROLE_TRADER > ROLE_VIEWER");
+        return hierarchy;
     }
     
 }

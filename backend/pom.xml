@@ -183,6 +183,33 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
+            <!-- ================================================================
+                 TEMPORARY: Health + Recon (+ Day-3 recon demo) smoke-test build.
+                 TradeController/TradeService (Day 5/6 REST layer for Trades) and
+                 AuditLog/DatabaseConfig/TradeDAO/ReconResultDAO/CounterpartyDAO
+                 (old Day-4 standalone JDBC helpers, superseded by JPA) belong to
+                 tickets that aren't finished yet and currently fail to compile.
+                 None of them are required for Health, Recon, or the I040 recon
+                 demo, so they're excluded here just so the rest of the app can
+                 boot and be exercised via Postman/Newman.
+                 Remove this <excludes> block once those tickets are finished.
+                 ================================================================ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/controller/TradeController.java</exclude>
+                        <exclude>**/service/TradeService.java</exclude>
+                        <exclude>**/model/AuditLog.java</exclude>
+                        <exclude>**/config/DatabaseConfig.java</exclude>
+                        <exclude>**/repository/TradeDAO.java</exclude>
+                        <exclude>**/repository/ReconResultDAO.java</exclude>
+                        <exclude>**/repository/CounterpartyDAO.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
             <!-- TICKET-I135: coverage threshold in CI -->
             <plugin>
                 <groupId>org.jacoco</groupId>

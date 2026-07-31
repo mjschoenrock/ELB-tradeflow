@@ -2,6 +2,8 @@ package com.dbtraining.tradeflow.service;
 
 import com.dbtraining.tradeflow.model.ReconResult;
 
+import org.springframework.stereotype.Service;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,6 +23,7 @@ import java.util.List;
  *          doubled to `""`.
  * ============================================================================
  */
+@Service
 public class ReconReportExporter {
 
     private static final String HEADER = "trade_id,status,discrepancy_type,resolved_at";

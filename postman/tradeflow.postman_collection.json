@@ -1,0 +1,242 @@
+{
+  "info": {
+    "name": "TradeFlow API",
+    "description": "TICKET-I085 — Postman collection covering Health, Trades, and Recon endpoints with collection-level Basic auth and pm.test assertions on status + JSON shape. Run via Newman: `npx newman run postman/tradeflow.postman_collection.json --env-var username=trader --env-var password=trader`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "{{username}}", "type": "string" },
+      { "key": "password", "value": "{{password}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl",  "value": "http://localhost:8080" },
+    { "key": "username", "value": "trader" },
+    { "key": "password", "value": "trader" },
+    { "key": "tradeId",  "value": "1" },
+    { "key": "breakId",  "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /actuator/health",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/actuator/health"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('status is UP', () => pm.expect(pm.response.json().status).to.eql('UP'));"
+            ]}
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Trades",
+      "item": [
+        {
+          "name": "GET /api/v1/trades",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/trades"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('response is an array of trades', () => {",
+              "  pm.expect(pm.response.json()).to.be.an('array');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/v1/trades (filtered by status)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/trades?status=PENDING"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('response is an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/v1/trades (happy path)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/trades",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tradeRef\": \"TRD-2026-{{$timestamp}}\",\n  \"instrumentId\": 1,\n  \"counterpartyId\": 1,\n  \"quantity\": 1000,\n  \"price\": 245.50,\n  \"tradeDate\": \"2026-03-15\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "pm.test('Location header points at the new trade', () => {",
+              "  pm.expect(pm.response.headers.get('Location')).to.match(/\\/api\\/v1\\/trades\\/\\d+/);",
+              "});",
+              "pm.test('body echoes tradeRef', () => {",
+              "  pm.expect(pm.response.json()).to.have.property('tradeRef');",
+              "});",
+              "const loc = pm.response.headers.get('Location');",
+              "if (loc) pm.collectionVariables.set('tradeId', loc.split('/').pop());"
+            ]}
+          }]
+        },
+        {
+          "name": "POST /api/v1/trades (invalid payload -> 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/trades",
+            "body": { "mode": "raw", "raw": "{ \"tradeRef\": \"\", \"quantity\": -1 }" }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('400 Bad Request', () => pm.response.to.have.status(400));",
+              "pm.test('error envelope shape', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('code');",
+              "  pm.expect(body).to.have.property('message');",
+              "  pm.expect(body).to.have.property('timestamp');",
+              "  pm.expect(body).to.have.property('path');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "PUT /api/v1/trades/{{tradeId}}/status",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/v1/trades/{{tradeId}}/status",
+            "body": { "mode": "raw", "raw": "{ \"status\": \"MATCHED\" }" }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('status flipped to MATCHED', () => pm.expect(pm.response.json().status).to.eql('MATCHED'));"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/v1/trades/999999 (not found -> 404)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/trades/999999"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 Not Found', () => pm.response.to.have.status(404));",
+              "pm.test('error envelope has code TRADE_NOT_FOUND', () => {",
+              "  pm.expect(pm.response.json().code).to.eql('TRADE_NOT_FOUND');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "DELETE /api/v1/trades/{{tradeId}}",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/trades/{{tradeId}}"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+            ]}
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Recon",
+      "item": [
+        {
+          "name": "POST /api/v1/recon/run",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/recon/run"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('ReconSummary shape', () => {",
+              "  const b = pm.response.json();",
+              "  pm.expect(b).to.have.property('totalInternal');",
+              "  pm.expect(b).to.have.property('totalExternal');",
+              "  pm.expect(b).to.have.property('matchedCount');",
+              "  pm.expect(b).to.have.property('unmatchedCount');",
+              "  pm.expect(b).to.have.property('breakdownByType');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "GET /api/v1/recon/results?status=OPEN",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/recon/results?status=OPEN&page=0&size=20"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('paginated envelope', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('content');",
+              "  pm.expect(body).to.have.property('totalElements');",
+              "  pm.expect(body).to.have.property('size');",
+              "  pm.expect(body).to.have.property('number');",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "PUT /api/v1/recon/{{breakId}}/resolve",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/recon/{{breakId}}/resolve"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('204 No Content (idempotent)', () => pm.response.to.have.status(204));"
+            ]}
+          }]
+        },
+        {
+          "name": "PUT /api/v1/recon/999999/resolve (not found -> 404)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/recon/999999/resolve"
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('404 Not Found', () => pm.response.to.have.status(404));"
+            ]}
+          }]
+        }
+      ]
+    }
+  ]
+}

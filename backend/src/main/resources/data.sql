@@ -11,7 +11,7 @@ INSERT INTO counterparties (name, lei_code, region) VALUES
 	('Nomura Holdings Inc',     '6N69WMNCQOWKSDLVDX42', 'APAC');
 
 INSERT INTO instruments (symbol, name, asset_class, currency, isin) VALUES
-	('SAP.DE',  'SAP SE',                'EQUITY',       'EUR', 'DE0007164600'),
+	('SAP3.DE', 'SAP SE',                'EQUITY',       'EUR', 'DE0007164600'),
 	('NVDA',    'NVIDIA Corp',           'EQUITY',       'USD', 'US67066G1040'),
 	('EURUSD',  'EUR/USD spot',          'FX',           'USD',  NULL),
 	('BUND10Y', 'German 10Y Bund',       'FIXED_INCOME', 'EUR', 'DE0001102606'),

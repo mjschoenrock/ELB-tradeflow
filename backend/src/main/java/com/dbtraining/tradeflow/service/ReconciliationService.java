@@ -68,7 +68,7 @@ public class ReconciliationService {
     public Page<ReconResultDto> listBreaks(ReconResult.Status status,Long counterpartyId, Pageable pageable) {
         Page<ReconResult> page = (counterpartyId == null)
                 ? reconResultRepository.findByStatus(status, pageable)
-                : reconResultRepository.findByStatusAndCounterpartyId(status, counterpartyId, pageable);
+                : reconResultRepository.findByStatusAndTradeCounterpartyId(status, counterpartyId, pageable);
         return page.map(ReconResultDto::from);
     }
 

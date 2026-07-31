@@ -121,7 +121,7 @@ public class TradeController {
             @PathVariable Long id) {
         // TODO(TICKET-I071): tradeService.softDelete(id); return 204.
                 tradeService.softDelete(id);
-                return ReponseEntity.noContent().build();
+                return ResponseEntity.noContent().build();
         
     }
 

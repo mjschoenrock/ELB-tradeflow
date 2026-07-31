@@ -35,9 +35,12 @@ import java.util.List;
 public interface ReconResultRepository extends JpaRepository<ReconResult, Long> {
 
     Page<ReconResult> findByStatus(ReconResult.Status status, Pageable pageable);
-    Page<ReconResult> findByStatusAndCounterpartyId(ReconResult.Status status,
-                                                    Long counterpartyId,
-                                                    Pageable pageable);
+    // NOTE: ReconResult has no direct counterpartyId field — counterparty
+    // lives on the related Trade (trade.counterparty.id), so this must
+    // traverse the relation: status + trade.counterparty.id.
+    Page<ReconResult> findByStatusAndTradeCounterpartyId(ReconResult.Status status,
+                                                         Long counterpartyId,
+                                                         Pageable pageable);
 
     List<ReconResult> findByStatus(ReconResult.Status status);
 

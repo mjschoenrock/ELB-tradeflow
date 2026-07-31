@@ -23,6 +23,10 @@
       <column name="currency" type="CHAR(3)">
         <constraints nullable="false"/>
       </column>
+      <column name="isin" type="CHAR(12)">
+        <constraints nullable="true" unique="true"
+                     uniqueConstraintName="uq_instruments_isin"/>
+      </column>
     </createTable>
 
     <sql>

@@ -25,7 +25,10 @@ public class ReconResult {
     @Column(nullable = false, length = 20)
     private Status status;
 
-    @Column(name = "detected_at", nullable = false, updatable = false)
+    // NOTE: the physical column is "created_at" (see 006-create-recon-breaks.xml
+    // and the reference v_settlement_lag view, which aliases
+    // "rb.created_at AS detected_at") — detectedAt is the app-level name.
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant detectedAt;
 
     @Column(name = "resolved_at")

@@ -1,6 +1,7 @@
 package com.dbtraining.tradeflow.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 /**
@@ -38,7 +39,7 @@ public class BondTrade extends BaseTrade {
         this.maturityDate = b.maturityDate;
         this.faceValue = b.faceValue;
 
-        if(couponRate.signum() < 0 || couponRate.compareTo(BigDecimal.valueOf(100))) {
+        if(couponRate.signum() < 0 || couponRate.compareTo(BigDecimal.valueOf(100)) > 0) {
             throw new IllegalStateException("coupon rate should be between 0 and 100");
         }
         
@@ -68,7 +69,7 @@ public class BondTrade extends BaseTrade {
         private Instant createdAt;
         private BigDecimal couponRate;
         private LocalDate maturityDate;
-        private int BigDecimal faceValue;
+        private BigDecimal faceValue;
 
         public Builder getTradeRef(String tradeRef){
             this.tradeRef = tradeRef;

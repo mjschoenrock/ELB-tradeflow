@@ -1,10 +1,14 @@
 package com.dbtraining.tradeflow;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
+import com.dbtraining.tradeflow.dto.ReconSummary;
+import com.dbtraining.tradeflow.service.TradeProcessor;
 
-import com.dbtraining.tradeflow.model.Trade;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.nio.file.Path;
 
 /**
  * ============================================================================
@@ -21,27 +25,36 @@ import com.dbtraining.tradeflow.model.Trade;
  *   - TICKET-I016 — package structure + boot main
  *   - TICKET-I026 — print formatted trade list (Day 2, BEFORE Spring boot wiring)
  *   - TICKET-I040 — wire up the full recon pipeline run in main (Day 3 sprint)
- *
- *  Note: I026 runs BEFORE we have Spring Boot — for Day 2 you'll use a plain
- *  `public static void main` without `@SpringBootApplication`. From Day 5
- *  onward, this becomes the Spring Boot entry-point as below.
  * ============================================================================
  */
-
-
+@SpringBootApplication
 public class TradeflowApplication {
 
     public static void main(String[] args) {
         printBanner();
+        SpringApplication.run(TradeflowApplication.class, args);
+    }
 
-
-        
+    /**
+     * TICKET-I040 — Manual run on sample data.
+     * Runs the full parse -> validate -> reconcile -> report pipeline against
+     * the two hand-crafted fixture CSVs and prints the resulting ReconSummary,
+     * proving I028-I039 are wired together end-to-end.
+     */
+    @Bean
+    CommandLineRunner reconDemoRunner(TradeProcessor processor) {
+        return args -> {
+            Path internal = Path.of("src/test/resources/internal-trades.csv");
+            Path external = Path.of("src/test/resources/external-trades.csv");
+            ReconSummary summary = processor.process(internal, external);
+            System.out.println();
+            System.out.println("== Day-3 recon demo (TICKET-I040) ==================================================");
+            System.out.println(summary);
+            System.out.println("====================================================================================");
+        };
     }
 
     private static void printBanner() {
-        // TODO(TICKET-I026): On Day 2 this main() is plain Java — replace the
-        //   SpringApplication.run call above with your console trade-table
-        //   printout, then revert/extend it on Day 5 when Spring Boot enters.
         System.out.println();
         System.out.println("  ████████ ██████   █████  ██████  ███████ ███████ ██       ██████  ██     ██");
         System.out.println("     ██    ██   ██ ██   ██ ██   ██ ██      ██      ██      ██    ██ ██     ██");
@@ -53,6 +66,5 @@ public class TradeflowApplication {
         System.out.println("  Intermediate Track — Case Study: Trade Reconciliation");
         System.out.println();
     }
-
 
 }

@@ -81,8 +81,12 @@ public class TradeParser {
                     .quoteCurrency(c.length > 11 ? c[11].trim() : "")
                     .spotRate(c.length > 12 ? parseDecimal(c[12], "spot_rate") : BigDecimal.ZERO)
                     .build();
+            // NOTE: BondTrade.Builder's setters are still misnamed getTradeRef()/
+            // getInstrumentId() instead of tradeRef()/instrumentId() (TICKET-I031,
+            // not yet fixed) — calling the existing names here rather than
+            // touching BondTrade.java.
             case "BOND" -> BondTrade.builder()
-                    .tradeRef(tradeRef).instrumentId(instrumentId).counterpartyId(counterpartyId)
+                    .getTradeRef(tradeRef).getInstrumentId(instrumentId).counterpartyId(counterpartyId)
                     .quantity(quantity).price(price).tradeDate(tradeDate).status(status)
                     .couponRate(c.length > 13 ? parseDecimal(c[13], "coupon_rate") : BigDecimal.ZERO)
                     .maturityDate(c.length > 14 ? LocalDate.parse(c[14].trim()) : tradeDate.plusYears(1))

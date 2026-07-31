@@ -1,5 +1,6 @@
 package com.dbtraining.tradeflow.dto;
 
+import com.dbtraining.tradeflow.model.Trade;
 import com.dbtraining.tradeflow.model.TradeStatus;
 
 import java.math.BigDecimal;
@@ -29,6 +30,17 @@ public record TradeDto(
         TradeStatus status,
         Instant createdAt
 ) {
-    // TODO(TICKET-I068): consider adding `static TradeDto from(Trade entity)`
-    //                    so the mapping has one home.
+    public static TradeDto from(Trade trade) {
+        return new TradeDto(
+                trade.getId(),
+                trade.getTradeRef(),
+                trade.getInstrument() != null ? trade.getInstrument().getId() : null,
+                trade.getCounterparty() != null ? trade.getCounterparty().getId() : null,
+                trade.getQuantity(),
+                trade.getPrice(),
+                trade.getTradeDate(),
+                trade.getStatus(),
+                trade.getCreatedAt()
+        );
+    }
 }

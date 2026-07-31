@@ -90,13 +90,23 @@ public class TradeService {
         return TradeDto.from(saved);
     }
 
+    @Transactional
     public TradeDto updateStatus(Long id, TradeStatus newStatus) {
-        // TODO(TICKET-I070): implement on Day 6.
-        throw new UnsupportedOperationException("TICKET-I070");
+        Trade trade = tradeRepository.findById(id)
+                .orElseThrow(() -> new TradeNotFoundException("Trade " + id + " not found"));
+        if (trade.getStatus() != null && trade.getStatus().isTerminal()) {
+            throw new IllegalStateException(
+                    "Trade " + id + " is in terminal status " + trade.getStatus() + " and cannot transition");
+        }
+        trade.setStatus(newStatus);
+        return TradeDto.from(trade);
     }
 
+    @Transactional
     public void softDelete(Long id) {
-        // TODO(TICKET-I071): implement soft delete + audit log on Day 6.
-        throw new UnsupportedOperationException("TICKET-I071");
+        Trade trade = tradeRepository.findById(id)
+                .orElseThrow(() -> new TradeNotFoundException("Trade " + id + " not found"));
+        trade.setStatus(TradeStatus.CANCELLED);
+        // JPA dirty-checking flushes the UPDATE at commit — no explicit save() needed.
     }
 }

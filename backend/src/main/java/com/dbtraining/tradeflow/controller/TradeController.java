@@ -2,6 +2,7 @@ package com.dbtraining.tradeflow.controller;
 
 import com.dbtraining.tradeflow.dto.TradeDto;
 import com.dbtraining.tradeflow.dto.TradeRequest;
+import com.dbtraining.tradeflow.model.TradeStatus;
 import com.dbtraining.tradeflow.service.TradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.net.URI;
 
@@ -65,12 +65,28 @@ public class TradeController {
             @Parameter(description = "Optional inclusive end date filter")
             @RequestParam(required = false) LocalDate to
     ) {
-        // TODO(TICKET-I068): replace this empty response with a real DB-backed
-        //   call once the JDBC DAO (Day 4 / TICKET-I045) or JPA repository
-        //   (Day 5 / TICKET-I060+I062) is in place.
-        //   For Day 1, returning an empty list keeps the React UI booting
-        //   gracefully (shows "no trades match") while you build the schema.
-        return Collections.emptyList();
+        if (status != null && !status.isBlank()) {
+            return tradeService.findByStatus(TradeStatus.valueOf(status.toUpperCase()));
+        }
+        if (from != null && to != null) {
+            return tradeService.findByDateRange(from, to);
+        }
+        return tradeService.findAll();
+    }
+
+    // ------------------------------------------------------------------------
+    // Not a tracked ticket on its own — TradeService.findById() was already
+    // fully implemented (incl. TradeNotFoundException -> 404 via I075's
+    // GlobalExceptionHandler) but had no controller endpoint wired to it.
+    // ------------------------------------------------------------------------
+    @Operation(summary = "Get a single trade by id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Trade returned successfully"),
+            @ApiResponse(responseCode = "404", description = "Trade not found")
+    })
+    @GetMapping("/{id}")
+    public TradeDto getById(@Parameter(description = "Trade identifier") @PathVariable Long id) {
+        return tradeService.findById(id);
     }
 
     // ------------------------------------------------------------------------
@@ -103,8 +119,7 @@ public class TradeController {
             @PathVariable Long id,
             @Parameter(description = "New trade status payload")
             @RequestBody StatusUpdate body) {
-        // TODO(TICKET-I070): delegate to tradeService.updateStatus(id, body.status()).
-                return tradeService.updateStatus(id, body.status());
+        return tradeService.updateStatus(id, TradeStatus.valueOf(body.status().toUpperCase()));
     }
 
     // ------------------------------------------------------------------------

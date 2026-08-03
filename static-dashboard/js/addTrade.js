@@ -79,7 +79,7 @@ function validate(data) {
     if (!data.counterpartyId) { setError("counterpartyId", "required"); ok = false; }
 
     if (!data.quantity || Number(data.quantity) <= 0) { setError("quantity", "must be > 0"); ok = false; }
-    if (!data.quantity || Number(data.price)    <= 0) { setError("price",    "must be > 0"); ok = false; }
+    if (!data.price || Number(data.price)       <= 0) { setError("price",    "must be > 0"); ok = false; }
     if (!data.tradeDate)             { setError("tradeDate", "required");   ok = false; }
     if (data.tradeDate && new Date(data.tradeDate) > new Date()) {
         setError("tradeDate", "must not be in the future"); ok = false;

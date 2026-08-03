@@ -42,7 +42,7 @@ export default function Trades() {
                         {s}
                     </button>
                 ))}
-                <button onClick={() => dispatch({ type: 'RESET' })}>Reset</button>
+                <button classname="reset" onClick={() => dispatch({ type: 'RESET' })}>Reset</button>
             </div>
 
             {error && <div className="error">{error.message}</div>}

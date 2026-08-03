@@ -15,51 +15,52 @@
  *    - 404 fallback page
  * ============================================================================
  */
-import { Navigate, Route, Routes, Link } from 'react-router-dom';
-import Dashboard from './pages/Dashboard.jsx';
-import Trades from './pages/Trades.jsx';
-import AddTradeForm from './components/AddTradeForm.jsx';
-import Recon from './pages/Recon.jsx';
-
-export default function App() {
-    return (
-        <div className="layout">
-            <header className="topbar">
-                <span className="logo">DB · TradeFlow</span>
-                <span className="user">Logged in as <strong>viewer</strong></span>
-            </header>
-
-            <div className="main">
-                <nav className="sidebar">
-                    {/* TODO(TICKET-I110): use NavLink for active styling. */}
-                    <ul>
-                        <li><Link to="/dashboard">Dashboard</Link></li>
-                        <li><Link to="/trades">Trades</Link></li>
-                        <li><Link to="/trades/new">+ New Trade</Link></li>
-                        <li><Link to="/recon">Recon Breaks</Link></li>
-                    </ul>
-                </nav>
-
-                <section className="content">
-                    <Routes>
-                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                        <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/trades" element={<Trades />} />
-                        <Route path="/trades/new" element={<AddTradeForm />} />
-                        <Route path="/recon" element={<Recon />} />
-                        <Route path="*" element={<NotFound />} />
-                    </Routes>
-                </section>
-            </div>
-        </div>
-    );
-}
-
-function NotFound() {
-    return (
-        <div>
-            <h2>404 — Not Found</h2>
-            <Link to="/dashboard">Back to dashboard</Link>
-        </div>
-    );
-}
+ import { Navigate, Route, Routes, Link } from 'react-router-dom';
+ import Dashboard from './pages/Dashboard.jsx';
+ import Trades from './pages/Trades.jsx';
+ import AddTradeForm from './components/AddTradeForm.jsx';
+ import Recon from './pages/Recon.jsx';
+ import ErrorBoundary from './components/ErrorBoundary.jsx';
+ 
+ export default function App() {
+     return (
+         <div className="layout">
+             <header className="topbar">
+                 <span className="logo">DB · TradeFlow</span>
+                 <span className="user">Logged in as <strong>viewer</strong></span>
+             </header>
+ 
+             <div className="main">
+                 <nav className="sidebar">
+                     {/* TODO(TICKET-I110): use NavLink for active styling. */}
+                     <ul>
+                         <li><Link to="/dashboard">Dashboard</Link></li>
+                         <li><Link to="/trades">Trades</Link></li>
+                         <li><Link to="/trades/new">+ New Trade</Link></li>
+                         <li><Link to="/recon">Recon Breaks</Link></li>
+                     </ul>
+                 </nav>
+ 
+                 <section className="content">
+                     <Routes>
+                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                         <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+                         <Route path="/trades" element={<ErrorBoundary><Trades /></ErrorBoundary>} />
+                         <Route path="/trades/new" element={<ErrorBoundary><AddTradeForm /></ErrorBoundary>} />
+                         <Route path="/recon" element={<ErrorBoundary><Recon /></ErrorBoundary>} />
+                         <Route path="*" element={<NotFound />} />
+                     </Routes>
+                 </section>
+             </div>
+         </div>
+     );
+ }
+ 
+ function NotFound() {
+     return (
+         <div>
+             <h2>404 — Not Found</h2>
+             <Link to="/dashboard">Back to dashboard</Link>
+         </div>
+     );
+ }

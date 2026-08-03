@@ -15,7 +15,7 @@
  *    - 404 fallback page
  * ============================================================================
  */
-import { Navigate, Route, Routes, Link } from 'react-router-dom';
+import { Navigate, Route, Routes, Link, NavLink } from 'react-router-dom';
 import Dashboard from './pages/Dashboard.jsx';
 import Trades from './pages/Trades.jsx';
 import AddTradeForm from './components/AddTradeForm.jsx';
@@ -31,12 +31,11 @@ export default function App() {
 
             <div className="main">
                 <nav className="sidebar">
-                    {/* TODO(TICKET-I110): use NavLink for active styling. */}
                     <ul>
-                        <li><Link to="/dashboard">Dashboard</Link></li>
-                        <li><Link to="/trades">Trades</Link></li>
-                        <li><Link to="/trades/new">+ New Trade</Link></li>
-                        <li><Link to="/recon">Recon Breaks</Link></li>
+                        <li><NavLink to="/dashboard" className={({ isActive }) => isActive ? 'active' : ''}>Dashboard</NavLink></li>
+                        <li><NavLink to="/trades" className={({ isActive }) => isActive ? 'active' : ''}>Trades</NavLink></li>
+                        <li><NavLink to="/trades/new" className={({ isActive }) => isActive ? 'active' : ''}>+ New Trade</NavLink></li>
+                        <li><NavLink to="/recon" className={({ isActive }) => isActive ? 'active' : ''}>Recon Breaks</NavLink></li>
                     </ul>
                 </nav>
 

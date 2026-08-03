@@ -6,7 +6,7 @@
 // ============================================================================
 
 const API_BASE = "http://localhost:8080/api/v1";
-const AUTH_HEADER = "Basic " + btoa("trader:trader-pass");
+const AUTH_HEADER = "Basic " + btoa("trader:trader-pw");
 
 document.addEventListener("DOMContentLoaded", loadBreaks);
 
@@ -45,12 +45,14 @@ async function loadBreaks() {
 }
 
 function rowHtml(r) {
+    const detected = r.detectedAt ? new Date(r.detectedAt).toLocaleString("en-GB") : "";
+    
     return `
         <tr data-id="${r.id}">
-            <td>${r.tradeRef || r.tradeId}</td>
-            <td>${r.discrepancyType || "—"}</td>
+            <td>${r.tradeRef ?? r.tradeId ?? "—"}</td>
+            <td>${r.discrepancyType ?? "—"}</td>
             <td><span class="badge badge-open">${r.status}</span></td>
-            <td>${r.createdAt || ""}</td>
+            <td>${detected}</td>
             <td><button data-action="resolve">Resolve</button></td>
         </tr>
     `;

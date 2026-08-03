@@ -17,14 +17,26 @@ import StatCard from '../components/StatCard.jsx';
 import { useTradeData } from '../hooks/useTradeData.js';
 import { useReconResults } from '../hooks/useReconResults.js';
 
+const INTERVAL = 30_000;
+
 export default function Dashboard() {
     const filters = useMemo(() => ({ size: 500 }), []);
     const { trades, loading } = useTradeData(filters);
     const { results: openBreaks } = useReconResults('OPEN');
+    const { results: resolvedBreaks } = useReconResults('RESOLVED');
+
+    useEffect(() => {
+        const id = setInteval(() => {
+            refetchTrades();
+            refetchBreaks();
+        }, INTERVAL);
+        return () => clearInterval(id);
+    }, [refetchTrades, refetchBreaks]);
 
     const total = trades.length;
     const matched = trades.filter(t => t.status === 'MATCHED').length;
     const matchedPct = total ? Math.round((matched / total) * 100) + '%' : '—';
+    const avgTime = getAvgTime(resolvedBreaks);
 
     return (
         <>
@@ -33,9 +45,22 @@ export default function Dashboard() {
                 <StatCard caption="Total Trades"        value={loading ? '…' : total} />
                 <StatCard caption="Matched %"           value={loading ? '…' : matchedPct} />
                 <StatCard caption="Unmatched Count"     value={openBreaks.length} />
-                <StatCard caption="Avg Processing Time" value="—" />
-                {/* TODO(TICKET-I103): wire avg processing time from /api/v1/recon/results. */}
+                <StatCard caption="Avg Processing Time" value={avgTime} />
             </section>
         </>
     );
+}
+
+function getAvgTime(resolved) {
+
+    if (resolved.length === 0 || !resolved) return 'N/A';
+
+    const check = resolved.filter(a => a.detectedAt && a.resolvedAt);
+    if (check.length === 0) return 'N/A';
+    
+    const totalTime = check.reduce((acc, a) => {
+        const ms = new Date(a.resolvedAt) - new Date(a.detectedAt);
+        return acc + ms;
+    }, 0);
+    return (totalTime / check.length).toFixed(1) + 'ms';
 }

@@ -105,6 +105,35 @@ a:hover { text-decoration: underline; }
 .data-table tbody tr:nth-child(even) { background: rgba(0, 51, 102, 0.03); }
 .data-table tbody tr:hover { background: rgba(0, 51, 102, 0.08); }
 
+.row-toggle {
+    min-width: 1.6rem;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.3rem;
+    border-radius: 3px;
+    background: #0b4b8a;
+}
+
+.trade-row-detail td {
+    background: rgba(0, 51, 102, 0.05);
+}
+
+.trade-meta-grid {
+    margin: 0;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+}
+
+.trade-meta-grid dt {
+    font-weight: 600;
+    color: var(--db-navy);
+}
+
+.trade-meta-grid dd {
+    margin: 0;
+    color: var(--db-text);
+}
+
 /* ---- Forms ---- */
 form { display: grid; gap: 1rem; max-width: 500px; margin-top: 1.5rem; }
 form label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem; }

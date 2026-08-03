@@ -24,7 +24,8 @@
  *  HINT: key={t.id} on every row. Missing keys cause subtle re-render bugs.
  * ============================================================================
  */
-import StatusBadge from './StatusBadge.jsx';
+import TradeRow from './TradeRow.jsx';
+import { useState } from 'react';
 
 export default function TradeTable({
     trades = [],
@@ -33,6 +34,8 @@ export default function TradeTable({
     onSortChange,
     loading
 }) {
+    const [expandedRowKey, setExpandedRowKey] = useState(null);
+
     if (loading) return <div className="loading">Loading trades…</div>;
     if (!trades.length) return <div className="empty">No trades match your filters.</div>;
 
@@ -51,17 +54,18 @@ export default function TradeTable({
                 </tr>
             </thead>
             <tbody>
-                {trades.map(t => (
-                    <tr key={t.id || t.tradeRef}>
-                        <td>{t.tradeRef}</td>
-                        <td>{t.instrumentId}</td>
-                        <td>{t.counterpartyId}</td>
-                        <td>{t.quantity}</td>
-                        <td>{t.price}</td>
-                        <td>{t.tradeDate}</td>
-                        <td><StatusBadge status={t.status} /></td>
-                    </tr>
-                ))}
+                {trades.map(t => {
+                    const rowKey = t.id || t.tradeRef;
+                    return (
+                    <TradeRow
+                        key={rowKey}
+                        trade={t}
+                        colSpan={COLUMNS.length}
+                        expanded={expandedRowKey === rowKey}
+                        onToggle={() => setExpandedRowKey(prev => (prev === rowKey ? null : rowKey))}
+                    />
+                    );
+                })}
             </tbody>
         </table>
     );

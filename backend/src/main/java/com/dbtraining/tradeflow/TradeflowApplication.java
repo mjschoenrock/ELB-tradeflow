@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 
 import java.nio.file.Path;
 
@@ -42,6 +43,7 @@ public class TradeflowApplication {
      * proving I028-I039 are wired together end-to-end.
      */
     @Bean
+    @Profile("dev")
     CommandLineRunner reconDemoRunner(TradeProcessor processor) {
         return args -> {
             Path internal = Path.of("src/test/resources/internal-trades.csv");

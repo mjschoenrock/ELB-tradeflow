@@ -1,7 +1,7 @@
 package com.dbtraining.tradeflow.kafka;
 
 import com.dbtraining.tradeflow.dto.TradeEvent;
-import com.dbtraining.tradeflow.service.ReconciliationService;
+import com.dbtraining.tradeflow.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;

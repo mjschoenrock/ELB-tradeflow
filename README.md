@@ -153,6 +153,8 @@ docker compose up -d       # brings up all 7 services
 
 Full walkthrough: [`student-guides/day10/day10-local-cicd.md`](./student-guides/day10/day10-local-cicd.md).
 
+For a quick demo/QA checklist, links, and project path map, use [`docs/demo-qa-readme.md`](./docs/demo-qa-readme.md).
+
 ---
 
 ## How to read the TODOs in this codebase

@@ -12,7 +12,7 @@
  */
 
 const BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
-const AUTH = 'Basic ' + btoa('trader:trader-pw');
+const AUTH = 'Basic ' + btoa('trader:trader');
 
 export class ApiError extends Error {
     constructor(status, body) {

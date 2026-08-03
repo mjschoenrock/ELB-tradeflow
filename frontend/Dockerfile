@@ -23,6 +23,8 @@ RUN npm run build
 # ---- Stage 2: nginx serve -------------------------------------------------
 FROM nginx:1.27-alpine
 
+RUN apk add --no-cache wget
+
 # TODO(TICKET-I126 + TICKET-I128): copy a custom nginx.conf that:
 #   - serves /dist
 #   - fallbacks SPA routes to index.html (try_files $uri /index.html)

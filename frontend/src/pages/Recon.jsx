@@ -40,12 +40,17 @@ export default function Recon() {
         }
     };
 
+    const visibleResults = results.filter(r => {
+        const effectiveStatus = optimistic[r.id] || r.status;
+        return filter === 'ALL' ? true : effectiveStatus === filter;
+    });
+
     return (
         <>
             <h1>Reconciliation Breaks</h1>
 
             <div className="filters">
-                {['OPEN', 'RESOLVED', 'IGNORED'].map(s => (
+                {['ALL', 'OPEN', 'RESOLVED'].map(s => (
                     <button key={s}
                             className={filter === s ? 'active' : ''}
                             onClick={() => setFilter(s)}>
@@ -67,7 +72,7 @@ export default function Recon() {
                     </tr>
                 </thead>
                 <tbody>
-                    {results.map(r => {
+                    {visibleResults.map(r => {
                         const status = optimistic[r.id] || r.status;
                         return (
                             <tr key={r.id}>

@@ -18,7 +18,8 @@ export function useReconResults(status = 'OPEN') {
         setLoading(true);
         setError(null);
         try {
-            const page = await getReconResults({ status });
+            const params = status === 'ALL' ? {} : { status };
+            const page = await getReconResults(params);
             setResults(page.content || page);
         } catch (e) {
             setError(e);

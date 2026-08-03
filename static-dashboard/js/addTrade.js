@@ -8,7 +8,7 @@
 // ============================================================================
 
 const API_BASE = "http://localhost:8080/api/v1";
-const AUTH_HEADER = "Basic " + btoa("trader:trader-pass");
+const AUTH_HEADER = "Basic " + btoa("trader:trader-pw");
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("trade-form").addEventListener("submit", onSubmit);
@@ -64,8 +64,14 @@ function validate(data) {
     clearErrors();
     let ok = true;
 
-    if (Number(data.quantity) <= 0) { setError("quantity", "must be > 0"); ok = false; }
-    if (Number(data.price)    <= 0) { setError("price",    "must be > 0"); ok = false; }
+    if (!data.tradeRef || !data.tradeRef.trim()) {
+        setError("tradeRef", "required"); ok = false;
+    }
+    if (!data.instrumentId)   { setError("instrumentId",   "required"); ok = false; }
+    if (!data.counterpartyId) { setError("counterpartyId", "required"); ok = false; }
+
+    if (!data.quantity || Number(data.quantity) <= 0) { setError("quantity", "must be > 0"); ok = false; }
+    if (!data.quantity || Number(data.price)    <= 0) { setError("price",    "must be > 0"); ok = false; }
     if (!data.tradeDate)             { setError("tradeDate", "required");   ok = false; }
     if (data.tradeDate && new Date(data.tradeDate) > new Date()) {
         setError("tradeDate", "must not be in the future"); ok = false;

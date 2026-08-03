@@ -9,6 +9,7 @@ import com.dbtraining.tradeflow.dto.Discrepancy;
 import com.dbtraining.tradeflow.dto.ReconReport;
 import com.dbtraining.tradeflow.dto.ReconSummary;
 import com.dbtraining.tradeflow.repository.ReconResultRepository;
+import com.dbtraining.tradeflow.repository.TradeRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,11 +51,14 @@ class ReconciliationServiceTest {
     @Mock
     private ReconResultRepository reconResultRepository;
 
+    @Mock
+    private TradeRepository tradeRepository;
+
     private ReconciliationService service;
 
     @BeforeEach
     void setup() {
-        service = new ReconciliationService(reconResultRepository, new SimpleMeterRegistry());
+        service = new ReconciliationService(reconResultRepository, new SimpleMeterRegistry(), tradeRepository);
     }
 
     private static BaseTrade equity(String tradeRef) {

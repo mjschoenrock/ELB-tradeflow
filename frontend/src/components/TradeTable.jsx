@@ -25,12 +25,14 @@
  * ============================================================================
  */
 
+
 import StatusBadge from './StatusBadge.jsx';
+import withAuditLog from '../hoc/withAuditLog.jsx';
 
 const PAGE_SIZE = 20;
 
 const COLUMNS = [
-    { key: 'tradeRef',       label: 'Trade Ref' },
+    { key: 'tradeRef',      label: 'Trade Ref' },
     { key: 'instrumentId',   label: 'Instrument' },
     { key: 'counterpartyId', label: 'Counterparty' },
     { key: 'quantity',       label: 'Qty' },
@@ -39,7 +41,7 @@ const COLUMNS = [
     { key: 'status',         label: 'Status' }
 ];
 
-export default function TradeTable({
+function TradeTable({
     trades = [],
     sortField,
     sortDir,
@@ -99,3 +101,4 @@ export default function TradeTable({
     );
 }
 
+export default withAuditLog(TradeTable);

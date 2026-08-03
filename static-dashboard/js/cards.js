@@ -1,5 +1,5 @@
 // static-dashboard/js/cards.js
-// TICKET-I092A — skeleton; TICKET-I091/I098 fill this in on Day 8.
+// TICKET-I092A 
 
 document.addEventListener("DOMContentLoaded", () => {
   const totalEl     = document.querySelector("#card-total-trades");
@@ -8,6 +8,4 @@ document.addEventListener("DOMContentLoaded", () => {
   const avgTimeEl   = document.querySelector("#card-avg-time");
 
   console.log("cards.js: ready");
-  // TICKET-I091 — TODO: fetch /api/v1/trades and /api/v1/recon/run
-  // TICKET-I098 — TODO: loading + error UX on the 4 cards
 });

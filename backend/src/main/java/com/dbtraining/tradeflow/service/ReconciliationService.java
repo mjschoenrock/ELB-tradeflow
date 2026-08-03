@@ -9,6 +9,9 @@ import com.dbtraining.tradeflow.model.BaseTrade;
 import com.dbtraining.tradeflow.model.DiscrepancyType;
 import com.dbtraining.tradeflow.model.ReconResult;
 import com.dbtraining.tradeflow.repository.ReconResultRepository;
+import com.dbtraining.tradeflow.repository.TradeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -52,11 +55,15 @@ import java.util.stream.Collectors;
 @Service
 public class ReconciliationService {
 
+    private static final Logger log = LoggerFactory.getLogger(ReconciliationService.class);
+
     private final ReconResultRepository reconResultRepository;
+    private final TradeRepository tradeRepository;
     private final Timer reconRunTimer;
     private final Counter reconResolvedCounter;
 
-    public ReconciliationService(ReconResultRepository reconResultRepository, MeterRegistry meterRegistry) {
+    public ReconciliationService(ReconResultRepository reconResultRepository, MeterRegistry meterRegistry, TradeRepository tradeRepository) {
+        this.tradeRepository = tradeRepository;
         this.reconResultRepository = reconResultRepository;
         this.reconRunTimer = meterRegistry.timer("tradeflow_recon_run_seconds");
         this.reconResolvedCounter = Counter.builder("tradeflow_recon_resolved_total")
@@ -187,5 +194,19 @@ public class ReconciliationService {
         r.resolve();
         reconResolvedCounter.increment();
         // Audit row is written by the Day-2 DB trigger on UPDATE.
+    }
+
+    @Transactional
+    public void runForTrade(String tradeRef) {
+        tradeRepository.findByTradeRef(tradeRef).ifPresent(trade -> {
+            if (reconResultRepository.findByTradeId(trade.getId()).isEmpty()) {
+                ReconResult result = ReconResult.builder()
+                        .trade(trade)
+                        .discrepancyType(DiscrepancyType.MISSING_TRADE)
+                        .build();
+                reconResultRepository.save(result);
+            }
+            log.info("Recon: trade {} status={}", tradeRef, trade.getStatus());
+        });
     }
 }

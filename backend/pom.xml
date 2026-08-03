@@ -118,7 +118,7 @@
         <!-- Day 9 — Kafka (TICKET-I112)                                  -->
         <!-- ============================================================ -->
         <!-- TODO(TICKET-I112): uncomment to enable Kafka. -->
-        <!--
+        
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
@@ -128,13 +128,13 @@
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
         </dependency>
-        -->
+       
 
         <!-- ============================================================ -->
         <!-- Day 8 — Distributed tracing (Zipkin, Sprint 3)               -->
         <!-- ============================================================ -->
         <!-- TODO(Day 8 Sprint 3): uncomment when adding Zipkin tracing. -->
-        <!--
+        
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-brave</artifactId>
@@ -143,7 +143,7 @@
             <groupId>io.zipkin.reporter2</groupId>
             <artifactId>zipkin-reporter-brave</artifactId>
         </dependency>
-        -->
+        
 
         <!-- ============================================================ -->
         <!-- Testing (Days 3-9)                                           -->

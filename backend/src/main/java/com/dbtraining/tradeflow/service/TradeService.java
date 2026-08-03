@@ -1,8 +1,10 @@
 package com.dbtraining.tradeflow.service;
 
 import com.dbtraining.tradeflow.dto.TradeDto;
+import com.dbtraining.tradeflow.dto.TradeEvent;
 import com.dbtraining.tradeflow.dto.TradeRequest;
 import com.dbtraining.tradeflow.exception.TradeNotFoundException;
+import com.dbtraining.tradeflow.kafka.TradeEventProducer;
 import com.dbtraining.tradeflow.model.Counterparty;
 import com.dbtraining.tradeflow.model.Instrument;
 import com.dbtraining.tradeflow.model.Trade;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,13 +27,16 @@ public class TradeService {
     private final TradeRepository tradeRepository;
     private final InstrumentRepository instrumentRepository;
     private final CounterpartyRepository counterpartyRepository;
+    private final TradeEventProducer tradeEventProducer;
 
     public TradeService(TradeRepository tradeRepository,
                         InstrumentRepository instrumentRepository,
-                        CounterpartyRepository counterpartyRepository) {
+                        CounterpartyRepository counterpartyRepository,
+                        TradeEventProducer tradeEventProducer) {
         this.tradeRepository       = tradeRepository;
         this.instrumentRepository  = instrumentRepository;
         this.counterpartyRepository = counterpartyRepository;
+        this.tradeEventProducer = tradeEventProducer;
     }
 
     @Transactional(readOnly = true)
@@ -87,7 +93,13 @@ public class TradeService {
                 .build();
 
         Trade saved = tradeRepository.save(trade);
-        return TradeDto.from(saved);
+        TradeDto payload = TradeDto.from(saved);
+        tradeEventProducer.publish(new TradeEvent(
+            saved.getTradeRef(),
+            TradeEvent.Action.CREATED,
+            Instant.now(),
+            payload));
+        return payload;
     }
 
     @Transactional
@@ -99,7 +111,13 @@ public class TradeService {
                     "Trade " + id + " is in terminal status " + trade.getStatus() + " and cannot transition");
         }
         trade.setStatus(newStatus);
-        return TradeDto.from(trade);
+        TradeDto payload = TradeDto.from(trade);
+        tradeEventProducer.publish(new TradeEvent(
+            trade.getTradeRef(),
+            TradeEvent.Action.UPDATED,
+            Instant.now(),
+            payload));
+        return payload;
     }
 
     @Transactional
@@ -107,6 +125,11 @@ public class TradeService {
         Trade trade = tradeRepository.findById(id)
                 .orElseThrow(() -> new TradeNotFoundException("Trade " + id + " not found"));
         trade.setStatus(TradeStatus.CANCELLED);
+        tradeEventProducer.publish(new TradeEvent(
+            trade.getTradeRef(),
+            TradeEvent.Action.CANCELLED,
+            Instant.now(),
+            TradeDto.from(trade)));
         // JPA dirty-checking flushes the UPDATE at commit — no explicit save() needed.
     }
 }

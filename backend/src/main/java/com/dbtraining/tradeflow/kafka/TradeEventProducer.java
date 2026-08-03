@@ -1,6 +1,11 @@
 package com.dbtraining.tradeflow.kafka;
 
 import com.dbtraining.tradeflow.dto.TradeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
 
 /**
  * ============================================================================
@@ -39,9 +44,38 @@ import com.dbtraining.tradeflow.dto.TradeEvent;
  *          @TransactionalEventListener), or accept eventual consistency.
  * ============================================================================
  */
+@Service
 public class TradeEventProducer {
 
+    private static final Logger log = LoggerFactory.getLogger(TradeEventProducer.class);
+
+    private final KafkaTemplate<String, TradeEvent> kafkaTemplate;
+    private final String topic;
+
+    public TradeEventProducer(KafkaTemplate<String, TradeEvent> kafkaTemplate,
+                              @Value("${tradeflow.kafka.topics.trades}") String topic) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.topic = topic;
+    }
+
     public void publish(TradeEvent event) {
-        throw new UnsupportedOperationException("TICKET-I115");
+        try {
+            kafkaTemplate.send(topic, event.tradeRef(), event)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("Failed to publish TradeEvent tradeRef={} action={}",
+                                    event.tradeRef(), event.action(), ex);
+                        } else if (log.isDebugEnabled()) {
+                            log.debug("Published TradeEvent tradeRef={} -> partition={} offset={}",
+                                    event.tradeRef(),
+                                    result.getRecordMetadata().partition(),
+                                    result.getRecordMetadata().offset());
+                        }
+                    });
+        } catch (Exception ex) {
+            // Defensive catch: publishing issues must not fail trade persistence flows.
+            log.error("Unexpected publish setup failure for tradeRef={} action={}",
+                    event.tradeRef(), event.action(), ex);
+        }
     }
 }

@@ -33,4 +33,8 @@ public record TradeEvent(
         UPDATED,
         CANCELLED
     }
+
+    public static TradeEvent created(TradeDto payload) {
+            return new TradeEvent(payload.tradeRef(), Action.CREATED, Instant.now(), payload);
+    }
 }

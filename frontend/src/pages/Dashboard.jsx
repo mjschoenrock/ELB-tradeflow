@@ -12,7 +12,7 @@
  *    - refresh every 30s (useEffect + setInterval, cleared on unmount)
  * ============================================================================
  */
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import StatCard from '../components/StatCard.jsx';
 import { useTradeData } from '../hooks/useTradeData.js';
 import { useReconResults } from '../hooks/useReconResults.js';
@@ -21,12 +21,12 @@ const INTERVAL = 30_000;
 
 export default function Dashboard() {
     const filters = useMemo(() => ({ size: 500 }), []);
-    const { trades, loading } = useTradeData(filters);
-    const { results: openBreaks } = useReconResults('OPEN');
+    const { trades, loading, refetch: refetchTrades } = useTradeData(filters);
+    const { results: openBreaks, refetch: refetchBreaks } = useReconResults('OPEN');
     const { results: resolvedBreaks } = useReconResults('RESOLVED');
 
     useEffect(() => {
-        const id = setInteval(() => {
+        const id = setInterval(() => {
             refetchTrades();
             refetchBreaks();
         }, INTERVAL);
@@ -52,15 +52,14 @@ export default function Dashboard() {
 }
 
 function getAvgTime(resolved) {
-
-    if (resolved.length === 0 || !resolved) return 'N/A';
+    if (!resolved || resolved.length === 0) return 'N/A';
 
     const check = resolved.filter(a => a.detectedAt && a.resolvedAt);
     if (check.length === 0) return 'N/A';
     
     const totalTime = check.reduce((acc, a) => {
         const ms = new Date(a.resolvedAt) - new Date(a.detectedAt);
-        return acc + ms;
+        return acc + ms / 3_600_000;
     }, 0);
-    return (totalTime / check.length).toFixed(1) + 'ms';
+    return (totalTime / check.length).toFixed(1) + 'h';
 }

@@ -97,6 +97,6 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic deadLetterTopic() {
-        return new TopicBuilder.name(dltTopic).partitions(1).replicas(1).build();
+        return TopicBuilder.name(dltTopic).partitions(1).replicas(1).build();
     }
 }

@@ -16,6 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Counter;
+
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -28,16 +31,19 @@ public class TradeService {
     private final InstrumentRepository instrumentRepository;
     private final CounterpartyRepository counterpartyRepository;
     private final TradeEventProducer tradeEventProducer;
+    private final Counter tradesCreatedCounter;
 
     public TradeService(TradeRepository tradeRepository,
                         InstrumentRepository instrumentRepository,
                         CounterpartyRepository counterpartyRepository,
-                        TradeEventProducer tradeEventProducer) {
+                        TradeEventProducer tradeEventProducer, MeterRegistry meterRegistry) {
         this.tradeRepository       = tradeRepository;
         this.instrumentRepository  = instrumentRepository;
         this.counterpartyRepository = counterpartyRepository;
         this.tradeEventProducer = tradeEventProducer;
+        this.tradesCreatedCounter = Counter.builder("tradeflow_trades_created_total").description("total number of created trades").register(meterRegistry);
     }
+
 
     @Transactional(readOnly = true)
     public List<TradeDto> findAll() {
@@ -93,6 +99,7 @@ public class TradeService {
                 .build();
 
         Trade saved = tradeRepository.save(trade);
+        tradesCreatedCounter.increment();
         TradeDto payload = TradeDto.from(saved);
         tradeEventProducer.publish(new TradeEvent(
             saved.getTradeRef(),

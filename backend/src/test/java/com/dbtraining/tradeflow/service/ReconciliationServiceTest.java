@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 
 // mockito imports
@@ -24,7 +23,6 @@ import com.dbtraining.tradeflow.model.*;
 import org.mockito.ArgumentCaptor;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -74,7 +72,6 @@ class ReconciliationServiceTest {
     // TODO(TICKET-I048): test matchTrades_allMatched_returnsEmptyDiscrepancies.
     @Test
     void matchTrades_allMatched_returnsEmptyDiscrepancies() {
-        fail("TICKET-I048: implement test");
         List<BaseTrade> internal = List.of(equity("TST-001"), equity("TST-002"), equity("TST-003"));
         List<BaseTrade> external = List.of(equity("TST-001"), equity("TST-002"), equity("TST-003"));
 

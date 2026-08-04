@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,21 +60,23 @@ public class TradeController {
             @ApiResponse(responseCode = "400", description = "Invalid filter values supplied")
         })
     @GetMapping
-    public List<TradeDto> list(
+    public Page<TradeDto> list(
             @Parameter(description = "Optional trade status filter")
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false) TradeStatus status,
             @Parameter(description = "Optional inclusive start date filter")
             @RequestParam(required = false) LocalDate from,
             @Parameter(description = "Optional inclusive end date filter")
-            @RequestParam(required = false) LocalDate to
+            @RequestParam(required = false) LocalDate to,
+            Pageable pageable
     ) {
-        if (status != null && !status.isBlank()) {
-            return tradeService.findByStatus(TradeStatus.valueOf(status.toUpperCase()));
+        if (status != null) {
+            return tradeService.findPageByStatus(status, pageable);
         }
         if (from != null && to != null) {
-            return tradeService.findByDateRange(from, to);
+            List<TradeDto> byDate = tradeService.findByDateRange(from, to);
+            return new PageImpl<>(byDate, pageable, byDate.size());
         }
-        return tradeService.findAll();
+        return tradeService.findAll(pageable);
     }
 
     // ------------------------------------------------------------------------

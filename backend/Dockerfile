@@ -27,13 +27,12 @@ COPY src ./src
 RUN mvn -B -e clean package -DskipTests
 
 # ---- Stage 2: runtime -----------------------------------------------------
-FROM eclipse-temurin:17-jre-jammy
+FROM bellsoft/liberica-openjre-alpine:17
 WORKDIR /app
 
 # Non-root user for security
-RUN groupadd --system app && useradd --system --gid app --create-home app
-RUN apt-get update && apt-get install -y --no-install-recommends wget \
-    && rm -rf /var/lib/apt/lists/*
+RUN addgroup -S app && adduser -S app -G app
+RUN apk add --no-cache wget
 USER app
 
 COPY --from=build /workspace/target/*.jar /app/app.jar

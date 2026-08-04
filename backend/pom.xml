@@ -199,7 +199,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/model/AuditLog.java</exclude>
+                     <!--   <exclude>**/model/AuditLog.java</exclude> -->
                         <exclude>**/config/DatabaseConfig.java</exclude>
                         <exclude>**/repository/TradeDAO.java</exclude>
                         <exclude>**/repository/ReconResultDAO.java</exclude>

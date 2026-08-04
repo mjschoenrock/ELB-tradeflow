@@ -4,6 +4,7 @@ import com.dbtraining.tradeflow.config.SecurityConfig;
 import com.dbtraining.tradeflow.dto.TradeDto;
 import com.dbtraining.tradeflow.exception.GlobalExceptionHandler;
 import com.dbtraining.tradeflow.model.TradeStatus;
+import com.dbtraining.tradeflow.service.TradeProcessor;
 import com.dbtraining.tradeflow.service.TradeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,7 @@ class TradeControllerTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper mapper;
     @MockBean TradeService tradeService;
+        @MockBean TradeProcessor tradeProcessor;
 
     // ------------------------------------------------------------------------
     // TICKET-I082 — happy-path POST

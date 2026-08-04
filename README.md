@@ -101,6 +101,12 @@ The full per-day walkthrough lives in [`./student-guides/`](./student-guides/REA
 
 ---
 
+## Architecture
+
+See [docs/architecture.md](./docs/architecture.md) for the runtime component view and the CI/CD deployment flow.
+
+---
+
 ## Prerequisites
 
 - Java 17 (Temurin recommended)

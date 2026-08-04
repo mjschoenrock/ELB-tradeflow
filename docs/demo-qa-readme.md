@@ -11,6 +11,8 @@ the order to test the app features end to end.
 - Recon breaks page: http://localhost:5173/recon
 - Backend health: http://localhost:8080/actuator/health
 - Backend Prometheus metrics: http://localhost:8080/actuator/prometheus
+- Backend API docs (Swagger): http://localhost:8080/swagger-ui/index.html
+- Backend OpenAPI JSON: http://localhost:8080/v3/api-docs
 - Prometheus UI: http://localhost:9090
 - Grafana UI: http://localhost:3000
 - Kafdrop topic messages: http://localhost:9000/topic/trade-events/allmessages
@@ -93,6 +95,9 @@ docker compose logs -f backend
 docker compose logs -f kafka
 curl -s http://localhost:8080/actuator/health
 curl -s -u admin:admin http://localhost:8080/actuator/prometheus | grep -E 'kafka_producer_record_send_total|kafka_consumer'
+curl -s -u viewer:viewer 'http://localhost:8080/api/v1/trades?page=0&size=5'
+curl -s -u viewer:viewer 'http://localhost:8080/api/v1/recon/results?page=0&size=5'
+curl -s -u trader:trader -X POST http://localhost:8080/api/v1/recon/run
 curl -s -u trader:trader -H 'Content-Type: application/json' -X POST http://localhost:8080/api/v1/trades -d '{"tradeRef":"TRD-2026-9998","instrumentId":1,"counterpartyId":1,"quantity":100,"price":99.5,"tradeDate":"2026-08-03"}'
 curl -s http://localhost:9000/topic/trade-events/allmessages | grep -F 'TRD-2026-9998'
 docker compose down -v
@@ -104,6 +109,8 @@ docker compose down -v
 - Backend will not start: check the Liquibase changelog under [backend/src/main/resources/db/changelog/](../backend/src/main/resources/db/changelog/).
 - Kafka is unhealthy: run `docker compose down -v` and start again to clear stale broker data.
 - Trade POST returns 401: use `trader/trader` for write operations.
+- Trades/Recon GET returns 401: use `viewer/viewer` (or `trader/trader` / `admin/admin`) for read operations.
+- `/api/v1/reconciliation/results` returns error: the correct endpoint is `/api/v1/recon/results`.
 - Metrics are missing: verify [backend/src/main/java/com/dbtraining/tradeflow/config/KafkaConfig.java](../backend/src/main/java/com/dbtraining/tradeflow/config/KafkaConfig.java) and [backend/src/main/resources/application.yml](../backend/src/main/resources/application.yml).
 
 ## Suggested Demo Order
@@ -121,6 +128,7 @@ docker compose down -v
 - New trade form validates input and creates a trade successfully.
 - Kafka receives the trade event and Kafdrop shows the message.
 - Recon page loads and supports the open/resolved filters.
+- Recon APIs use `/api/v1/recon/*` endpoints.
 - Backend health endpoint returns `UP`.
 - Prometheus scrapes the backend.
 - Grafana is provisioned and reachable.

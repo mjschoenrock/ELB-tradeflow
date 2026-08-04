@@ -22,6 +22,8 @@ const COLOURS = {
     CANCELLED: styles.cancelled,
     OPEN:      styles.unmatched,
     RESOLVED:  styles.matched,
+    SUPPRESSED: styles.pending,
+    // Backward-compat alias in case old seed data or API values still use it.
     IGNORED:   styles.pending
 };
 

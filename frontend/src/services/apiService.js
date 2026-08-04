@@ -12,18 +12,8 @@
  */
 
 const BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const AUTH = 'Basic ' + btoa('trader:trader');
 
-// Hard-coded TRADER credentials for Day 8. A real login flow would replace
-// this in a later phase. TRADER role is required for POST/PUT/DELETE — the
-// Add Trade form and Recon Resolve button both need it. VIEWER alone gets
-// 403 on writes (per Phase-2.5 SecurityConfig role matchers).
-const AUTH = 'Basic ' + btoa('trader:trader-pw');
-
-/**
- * ApiError — thrown by request() on non-2xx responses.
- * Carries status and the parsed error body, so callers can show
- * meaningful messages.
- */
 export class ApiError extends Error {
     constructor(status, body) {
         super(body?.message || `HTTP ${status}`);
@@ -51,7 +41,6 @@ async function request(path, options = {}) {
     return res.json();
 }
 
-// ----- Trades --------------------------------------------------------------
 export const getTrades       = (params = {}) =>
     request('/trades?' + new URLSearchParams(params).toString());
 
@@ -64,7 +53,6 @@ export const updateStatus    = (id, status) =>
 export const cancelTrade     = (id) =>
     request(`/trades/${id}`, { method: 'DELETE' });
 
-// ----- Recon ---------------------------------------------------------------
 export const runRecon        = () =>
     request('/recon/run', { method: 'POST' });
 

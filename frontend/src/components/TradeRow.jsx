@@ -13,27 +13,66 @@
  *  HINT: KEEP this component small. If it grows past 120 lines, split.
  * ============================================================================
  */
-import { useState } from 'react';
+import StatusBadge from './StatusBadge.jsx';
 
-export default function TradeRow({ trade }) {
-    const [expanded, setExpanded] = useState(false);
+export default function TradeRow({
+    trade,
+    colSpan = 7,
+    expanded = false,
+    onToggle
+}) {
 
-    // TODO(TICKET-I105): implement the expanded view.
+    const detectedAt = formatDateTime(trade?.createdAt);
+
     return (
         <>
-            <tr onClick={() => setExpanded(e => !e)} style={{ cursor: 'pointer' }}>
-                <td>{trade.tradeRef}</td>
+            <tr>
+                <td>
+                    <button
+                        type="button"
+                        className="row-toggle"
+                        onClick={onToggle}
+                        aria-expanded={expanded}
+                        aria-label={`${expanded ? 'Collapse' : 'Expand'} trade ${trade.tradeRef}`}
+                    >
+                        {expanded ? '▾' : '▸'}
+                    </button>{' '}
+                    {trade.tradeRef}
+                </td>
                 <td>{trade.instrumentId}</td>
-                <td>{trade.status}</td>
+                <td>{trade.counterpartyId}</td>
+                <td>{trade.quantity}</td>
+                <td>{trade.price}</td>
+                <td>{trade.tradeDate}</td>
+                <td><StatusBadge status={trade.status} /></td>
             </tr>
             {expanded && (
-                <tr>
-                    <td colSpan={3}>
-                        {/* TODO(TICKET-I105): detail panel here. */}
-                        <em>TODO: detail panel for {trade.tradeRef}</em>
+                <tr className="trade-row-detail">
+                    <td colSpan={colSpan}>
+                        <dl className="trade-meta-grid">
+                            <dt>Trade ID</dt>
+                            <dd>{trade.id ?? '—'}</dd>
+                            <dt>Trade Ref</dt>
+                            <dd>{trade.tradeRef ?? '—'}</dd>
+                            <dt>Instrument ID</dt>
+                            <dd>{trade.instrumentId ?? '—'}</dd>
+                            <dt>Counterparty ID</dt>
+                            <dd>{trade.counterpartyId ?? '—'}</dd>
+                            <dt>Status</dt>
+                            <dd>{trade.status ?? '—'}</dd>
+                            <dt>Created At</dt>
+                            <dd>{detectedAt}</dd>
+                        </dl>
                     </td>
                 </tr>
             )}
         </>
     );
+}
+
+function formatDateTime(value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleString('en-GB');
 }

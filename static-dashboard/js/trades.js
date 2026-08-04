@@ -13,7 +13,7 @@
 
 // TODO(TICKET-I093): set the base URL — default to localhost:8080 during dev.
 const API_BASE = "http://localhost:8080/api/v1";
-const AUTH_HEADER = "Basic " + btoa("viewer:viewer-pass");
+const AUTH_HEADER = "Basic " + btoa("viewer:viewer-pw");
 
 // Module-level state — Day 8 is exactly what makes this approach painful.
 let allTrades = [];
@@ -83,15 +83,29 @@ function rowHtml(t) {
     const badgeClass = "badge-" + (t.status || "pending").toLowerCase();
     return `
         <tr>
-            <td>${t.tradeRef}</td>
+            <td>${escapeHtml(t.tradeRef)}</td>
             <td>${t.instrumentId}</td>
             <td>${t.counterpartyId}</td>
-            <td>${t.quantity}</td>
-            <td>${t.price}</td>
+            <td>${formatNumber(t.quantity)}</td>
+            <td>${formatNumber(t.price)}</td>
             <td>${t.tradeDate}</td>
-            <td><span class="badge ${badgeClass}">${t.status}</span></td>
+            <td><span class="badge ${badgeClass}">${t.status ?? "PENDING"}</span></td>
         </tr>
     `;
+}
+
+function formatNumber(n){
+    if (n == null){
+        return "";
+    }
+    const num = Number(n);
+    return Number.isFinite(num) ? num.toLocaleString("en-GB", {maximumFractionDigits: 4}) : String(n);
+}
+
+function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+    }[c]));
 }
 
 function compareBy(key, dir) {

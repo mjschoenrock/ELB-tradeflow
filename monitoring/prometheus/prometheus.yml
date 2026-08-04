@@ -25,6 +25,9 @@ scrape_configs:
   #  - outside docker-compose (local dev) use 'host.docker.internal:8080'
   - job_name: 'recon-service'
     metrics_path: '/actuator/prometheus'
+    basic_auth:
+      username: admin
+      password: admin
     static_configs:
       - targets: ['backend:8080']
 

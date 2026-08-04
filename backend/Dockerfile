@@ -19,21 +19,21 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /workspace
 
-# TODO(TICKET-I125): cache deps layer.
-# COPY pom.xml .
-# RUN mvn -B -e dependency:go-offline
-
 COPY pom.xml .
+RUN mvn -B -e dependency:go-offline
+
 COPY src ./src
 
 RUN mvn -B -e clean package -DskipTests
 
 # ---- Stage 2: runtime -----------------------------------------------------
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
 # Non-root user for security
-RUN addgroup -S app && adduser -S app -G app
+RUN groupadd --system app && useradd --system --gid app --create-home app
+RUN apt-get update && apt-get install -y --no-install-recommends wget \
+    && rm -rf /var/lib/apt/lists/*
 USER app
 
 COPY --from=build /workspace/target/*.jar /app/app.jar
